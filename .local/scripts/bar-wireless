@@ -1,0 +1,10 @@
+#!/bin/sh
+dwm-status wireless
+
+case $BUTTON in 
+  1) ip=$(curl "ifconfig.me")
+    notify-send $ip
+    echo -n "$ip" | xclip -sel clip
+    ;;
+esac
+  

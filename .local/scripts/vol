@@ -1,0 +1,4 @@
+#!/bin/sh
+
+pactl set-sink-volume $(pactl get-default-sink) $1
+kill -44 $(pidof dwmblocks)

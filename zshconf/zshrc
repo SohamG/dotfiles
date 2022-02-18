@@ -75,7 +75,7 @@ export GAMEMODERUNEXEC
 # xinput --set-prop 9 340 0 1
 # xinput set-prop 11 332 1
 # sh ~/.local/share/autostart.sh &
-path+="/home/sohamg/.local/bin"
+path+="/home/sohamg/.local/scripts"
 
 nvrun(){
     # env __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia $@

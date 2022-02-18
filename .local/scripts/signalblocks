@@ -1,0 +1,12 @@
+#!/bin/sh
+
+sig=$(echo "" | dmenu -p "Signal #")
+
+if { [ $sig -ge 0 ] && [ $sig -le 30 ] ;} then 
+  num=$(( sig + 34 ))
+  pkill -$num dwmblocks
+  notify-send "✅ Sent SIG $num to dwmblocks!"
+else
+  notify-send "❌ Error in SignalBlocks"
+fi
+

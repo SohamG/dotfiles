@@ -1,0 +1,7 @@
+#!/bin/sh
+
+dwm-status weather
+
+case $BUTTON in
+	1) alacritty --class flt -e less /tmp/weather
+esac

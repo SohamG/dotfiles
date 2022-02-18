@@ -1,0 +1,143 @@
+#/* vim: set filetype=bash : */ ~
+# 
+		# {"🆓", "dwm-status mem", 30, 0},
+#!/bin/sh
+delim="|"
+
+wireless(){
+  case $BUTTON in
+    1) ip=$(dig +short myip.opendns.com @resolver1.opendns.com)
+      notify-send "$ip"
+      echo "$ip" | xclip -selection clipboard
+      ;;
+  esac
+	grep "^\s*w" /proc/net/wireless | awk '{ print "🌏", int($3 * 100 / 70) "%" }'
+}
+moon_phases(){
+  # "Borrowed" from https://gist.github.com/zuloo/f2fed0de6ddbc0d25e2e
+  local lp=2551443
+  local now=$(date -u +"%s")
+  local newmoon=592500
+  local phase=$((($now - $newmoon) % $lp))
+  local phase_number=$((((phase / 86400) + 1)*100000))
+
+  # Multiply by 100000 so we can do integer comparison.  Go Bash!
+  if   [ $phase_number -lt 184566 ];  then phase_icon="🌑"  # new
+  elif [ $phase_number -lt 553699 ];  then phase_icon="🌒"  # waxing crescent
+  elif [ $phase_number -lt 922831 ];  then phase_icon="🌓"  # first quarter
+  elif [ $phase_number -lt 1291963 ];  then phase_icon="🌓"  # first quarter
+  elif [ $phase_number -lt 1661096 ]; then phase_icon="🌕F"  # full
+  elif [ $phase_number -lt 2030228 ]; then phase_icon="🌖"  # waning gibbous
+  elif [ $phase_number -lt 2399361 ]; then phase_icon="🌗"  # last quarter
+  elif [ $phase_number -lt 2768493 ]; then phase_icon="🌘"  # waning crescent
+  else
+    phase_icon="🌑"  # new
+  fi
+  echo -n $phase_icon
+}
+volume(){
+  case $BUTTON in 
+    1) vol +5% ;;
+    2) vol -5% ;;
+    3) vol -5% ;; 
+  esac
+
+  echo -n "📢"
+  pactl get-sink-volume $(pactl get-default-sink) | awk '{print $5}'
+}
+weather(){
+ # echo -n "⛅"
+ echo -n "摒"
+
+  if [ -f /tmp/weather ]; then
+    weather_age=$(($(date +%s) - $(date -r /tmp/weather +%s)))
+  else
+    curl -s https://wttr.in/chicago?1AFnQT > /tmp/weather 
+    echo "Updated weather cache! $(date) " >> /tmp/barlog
+  fi
+
+ if [ $weather_age -gt 3600 ]; then
+    curl -s https://wttr.in/chicago?1AFnQT > /tmp/weather 
+    echo "Updated weather cache! $(date) " >> /tmp/barlog
+ fi
+  cat /tmp/weather | grep ° | head -n 1 | sed 's/\D*//g' | awk '{print $int(NF-1), $NF}'
+}
+
+dte(){
+  case $BUTTON in 
+    1) notify-send "$(TZ='Asia/Kolkata' date)"
+  esac
+	TZ='America/Chicago' date +'%a %d/%b %l:%M%P'
+}
+bat(){
+     # echo -n "🔋"
+     bat=$(acpi -b | awk '{print $4}' | cut -d, -f1 | tr -d '%')
+    # echo -n $bat
+    if [ $bat -le 30 ]; then
+      echo -n "🪫"
+    else
+      echo -n "🔋"
+    fi
+    echo "$bat%"
+  }
+speed(){
+ echo -n "🏃"
+  iperf -c iperf.he.net | tail -n 1 | awk '{print $int(NF-1), $NF}'
+}
+
+dollar(){
+  echo -n "💲₹"
+   curl -s https://www.federalreserve.gov/feeds/data/H10_H10_RXI_N.B.IN.xml | grep -i _per_usd | tail -n 1 | gawk 'match($0, />([0-9.]+)</, a) {print a[1]}'
+}
+wind(){
+  echo -n " 💨"
+  if [ -f /tmp/wind ]; then
+    age=$(($(date +%s) - $(date -r /tmp/wind +%s)))
+  else
+    age=3601
+  fi
+
+ if [ $age -gt 3600 ]; then
+    curl -s "https://api.openweathermap.org/data/2.5/weather?q=chicago&appid=54a3c1418a58b882ddb57eee40b4b60a" > /tmp/wind
+ fi
+ cat /tmp/wind | jq '.wind.speed'
+}
+mem(){
+  case $BUTTON in
+    1) alacritty --class "flt" -e btop
+      ;;
+  esac 
+  free -h | grep -i mem | awk '{print "🆓", $NF}' 
+}
+status_pre() {
+    wind
+    echo "$delim"
+  dollar
+  echo "$delim"
+    speed
+    echo "$delim"
+    weather
+    echo "$delim"
+    moon_phases
+    echo "$delim"
+    wireless
+    echo "$delim"
+    mem
+    echo "$delim"
+    bat
+    echo "$delim"
+    volume
+    echo "$delim"
+    dte
+    echo "$delim"
+}
+
+stat() {
+  echo "$(status_pre | tr '\n' ' ')"
+}
+
+if [ $BUTTON -e 4 ]; then
+  alacritty --class flt -e nvim ~/.local/bin/dwm-status
+else
+$@
+fi

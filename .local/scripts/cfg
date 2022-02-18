@@ -1,0 +1,1 @@
+$EDITOR $(find .config/* -type f | fzf)

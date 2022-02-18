@@ -1,0 +1,6 @@
+#!/bin/sh
+
+
+choice=$(fd . '/home/sohamg/.config/' -t f --hidden -E discord -E code -E brave | fzf || exit)
+
+[ -z $choice ] || $EDITOR $choice 
