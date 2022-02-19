@@ -46,8 +46,8 @@ volume(){
   pactl get-sink-volume $(pactl get-default-sink) | awk '{print $5}'
 }
 weather(){
- # echo -n "⛅"
- echo -n "摒"
+ echo -n "⛅"
+ # echo -n "摒"
 
   if [ -f /tmp/weather ]; then
     weather_age=$(($(date +%s) - $(date -r /tmp/weather +%s)))
@@ -137,7 +137,7 @@ stat() {
 }
 
 if [ $BUTTON -e 4 ]; then
-  alacritty --class flt -e nvim ~/.local/bin/dwm-status
+  alacritty --class flt -e nvim ~/.local/scripts/dwm-status
 else
 $@
 fi

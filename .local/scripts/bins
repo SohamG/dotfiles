@@ -1,6 +1,6 @@
 # vim: filetype=sh
 #!/bin/sh
 
-chosen=$(fd . '/home/sohamg/.local/bin' -t f | fzf)
+chosen=$(fd . '/home/sohamg/.local/scripts' -t f | fzf)
 
 [ -z $chosen ] || $EDITOR $chosen
