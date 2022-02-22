@@ -8,6 +8,9 @@ DRAC_RED=(255 85 85)
 DRAC_COMMENT=(98 114 164)
 DRAC_CURRENT=(68 71 90)
 
+#SEP='%{\uE0B0 %}'
+SEP='%{\uE0B0 %}'
+
 SET_BG_COLOR () {
     echo -en "%{\x1b[48;2;${1};${2};${3}m%}"
 }
@@ -30,22 +33,29 @@ FG_COLOR () {
             SET_FG_COLOR ${DRAC_BG[@]}
     esac
 }
-
+PRINT_SEP(){
+  SET_FG_COLOR $@
+  echo -en $SEP
+}
 PRINT_DIR(){
-  echo "$PWD" | awk 'BEGIN {FS="/"} {print $NF}' # cmon awk dont be dumb
+  PWD2=$PWD
+  case $PWD2 in
+    $HOME*)
+      echo "🏠"
+      PWD2=${PWD2##$HOME}
+  esac 
+    echo "$PWD2" | sed 's%/%%' |awk 'BEGIN{FS="/"} {i=(NF<3)?1:int(NF-2); for(;i<=NF;i++) {
+    print $i ""
+  }}' # cmon awk dont be dumb
 }
 
 # Use modern completion system
-autoload -Uz compinit
-compinit
 make_prompt(){
   SET_BG_COLOR ${DRAC_PINK[@]} # dracula colors
   FG_COLOR
   PRINT_DIR
   RESET_FG
-  SET_FG_COLOR ${DRAC_PINK[@]}
-  echo -en '%{\uE0B0 %}'
-  SET_FG_COLOR 255 255 255
+  PRINT_SEP ${DRAC_PINK[@]}
   RESET_FG
 }
 
@@ -58,6 +68,8 @@ bindkey -e
 ### HISTORY FILE OPTIONS ###
 # Keep 50000 lines of history within the shell and save it to ~/.zsh_history:
 
+autoload -Uz compinit
+compinit
 HISTSIZE=50000
 SAVEHIST=50000
 HISTFILE=~/.zsh_history

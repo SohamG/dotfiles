@@ -45,6 +45,11 @@ volume(){
   echo -n "📢"
   pactl get-sink-volume $(pactl get-default-sink) | awk '{print $5}'
 }
+update_weather(){
+    curl -s https://wttr.in/chicago?1AFnQT > /tmp/weather 
+    curl -s https://v2.wttr.in/chicago > /tmp/weather2
+    echo "Updated weather cache! $(date) " >> /tmp/barlog
+}
 weather(){
  echo -n "⛅"
  # echo -n "摒"
@@ -52,14 +57,16 @@ weather(){
   if [ -f /tmp/weather ]; then
     weather_age=$(($(date +%s) - $(date -r /tmp/weather +%s)))
   else
-    curl -s https://wttr.in/chicago?1AFnQT > /tmp/weather 
-    echo "Updated weather cache! $(date) " >> /tmp/barlog
+    update_weather
   fi
 
  if [ $weather_age -gt 3600 ]; then
-    curl -s https://wttr.in/chicago?1AFnQT > /tmp/weather 
-    echo "Updated weather cache! $(date) " >> /tmp/barlog
+   update_weather
  fi
+ case $BUTTON in
+   1) st -n "flt" -e less -R "/tmp/weather2"
+     ;;
+ esac
   cat /tmp/weather | grep ° | head -n 1 | sed 's/\D*//g' | awk '{print $int(NF-1), $NF}'
 }
 
@@ -104,7 +111,7 @@ wind(){
 }
 mem(){
   case $BUTTON in
-    1) alacritty --class "flt" -e btop
+    1) st -n "flt" -g 80x24 -e btop
       ;;
   esac 
   free -h | grep -i mem | awk '{print "🆓", $NF}' 
@@ -136,8 +143,9 @@ stat() {
   echo "$(status_pre | tr '\n' ' ')"
 }
 
-if [ $BUTTON -e 4 ]; then
-  alacritty --class flt -e nvim ~/.local/scripts/dwm-status
-else
+case $BUTTON in
+  4) st -n "flt" -e nvim ~/.local/scripts/dwm-status ;;
+esac
+# Shell script legends say case esac is way faster than if
 $@
-fi
+

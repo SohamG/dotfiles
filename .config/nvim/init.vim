@@ -170,6 +170,7 @@ let g:vim_markdown_auto_extension_ext = 'wiki'
 autocmd BufWritePost ~/.config/nvim/init.vim source %
 autocmd BufWritePost patches.h,config.h,config.def.h !sudo make clean install
 " autocmd BufWritePost ~/.local/bin/dwm-status !refbar
+autocmd BufWritePost ~/zshconf/zshrc !source %
 
 set wildmenu
 set wildmode=longest,list,full
