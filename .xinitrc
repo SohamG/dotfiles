@@ -7,8 +7,9 @@ while :; do
     dunst &
     dwmblocks &
     setxkbmap -option keypad:pointerkeys &
+    setxkbmap -option caps:ctrl_modifier,shift:both_capslock
 
-    ssh-agent dwm
+    dbus-launch /usr/local/bin/dwm 2> /dev/null
 
 done
 

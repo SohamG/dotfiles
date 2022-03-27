@@ -89,7 +89,8 @@ bat(){
   }
 speed(){
  echo -n "🏃"
-  iperf -c iperf.he.net | tail -n 1 | awk '{print $int(NF-1), $NF}'
+  # iperf -c iperf.he.net | tail -n 1 | awk '{print $int(NF-1), $NF}'
+  echo -m "Fix this"
 }
 
 dollar(){

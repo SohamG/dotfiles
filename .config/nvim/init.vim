@@ -56,6 +56,7 @@ call plug#begin('~/.config/nvim/plugged')
     Plug 'jlanzarotta/bufexplorer'
 
     Plug 'ObserverOfTime/coloresque.vim'
+    Plug 'sillybun/vim-repl'
 call plug#end()
 
 " We have to turn this stuff back on if we want all of our features.
