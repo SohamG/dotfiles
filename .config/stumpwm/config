@@ -1,0 +1,94 @@
+;;; -*-  mode: lisp; -*-
+;;; The following lines added by ql:add-to-init-file:
+#-quicklisp
+(let ((quicklisp-init #P"/usr/lib/quicklisp/setup.lisp"))
+  (when (probe-file quicklisp-init)
+    (load quicklisp-init)))
+
+(require :swank)
+(swank-loader:init)
+(swank:create-server :port 4004
+                     :style swank:*communication-style*
+                     :dont-close t)
+(ql:quickload "clx-truetype")
+(load-module "ttf-fonts")
+(xft:cache-fonts) ;; Tell clx-truetype about the fonts you have installed. You really only need to do this once, but putting it here means you will not forget in the future.
+;; (set-font (make-instance 'xft:font :family "noto sans display medium" :size 12))
+
+;; (set-font "-misc-fira code-medium-r-normal--0-0-0-0-m-0-*-uni")
+(set-font "-monotype-noto sans display medium-medium-r-normal--0-0-0-0-p-0-adobe-standard")
+
+(in-package :stumpwm)
+
+(run-shell-command "xsetroot -cursor_name left_ptr")
+(stumpwm:set-prefix-key (stumpwm:kbd "s-z"))
+(stumpwm:enable-mode-line (stumpwm:current-screen) (stumpwm:current-head) t)
+(setf *window-format* "%n:%t | ")
+(setf stumpwm:*screen-mode-line-format*
+      (list "%g || "
+	    "%v || "
+	    '(:eval (stumpwm:run-shell-command "date" t))))
+
+(setf *mouse-focus-policy* :click)
+(set-font "-monospace-medium-r-normal-*-16-*-*-*-*-*-*-*")
+
+(setf *message-window-gravity* :center)
+(setf *input-window-gravity* :center)
+;; Utility
+
+(defun bind-top (key cmd)
+  "Binds cmd to key in the top map"
+  (define-key *top-map* (kbd key) cmd))
+
+(defun bind-root (key cmd)
+  "Binds cmd to key in the top map"
+  (define-key *root-map* (kbd key) cmd))
+
+(defcommand term () (:command "run st")
+  "Run or raise ST"
+	    (run-or-raise "st" '(:class "st")))
+;; Packages
+(ql:quickload "xembed")
+
+; System Tray
+(load-module "stumptray")
+(stumptray:stumptray)
+
+(load-module "stump-volume-control")
+
+;;; Key Bindings
+(bind-root "s-r" "loadrc")
+
+;; Window Movement
+(define-key *top-map* (kbd "s-H") "move-window left")
+(define-key *top-map* (kbd "s-J") "move-window down")
+(define-key *top-map* (kbd "s-K") "move-window up")
+(define-key *top-map* (kbd "s-L") "move-window right")
+
+(bind-top "s-h" "move-focus left")
+(bind-top "s-j" "next")
+(bind-top "s-k" "prev")
+(bind-top "s-l" "move-focus right")
+
+;; groups
+(bind-top "s-1" "gselect 1")
+(bind-top "s-2" "gselect 2")
+(bind-top "s-3" "gselect 3")
+(bind-top "s-4" "gselect 4")
+(bind-top "s-5" "gselect 5")
+
+;; Frames
+(bind-root "l" "hsplit")
+(bind-root "j" "vsplit")
+
+;; Launch Applications
+(bind-top "s-x" "term")
+(bind-top "s-p" "exec dmenu_run")
+
+
+(define-key *top-map* (kbd "XF86AudioRaiseVolume") "volume-up")
+(define-key *top-map* (kbd "XF86AudioLowerVolume") "volume-down")
+(define-key *top-map* (kbd "XF86AudioMute") "volume-toggle-mute")
+
+
+(bind-root "s-l" "exec slock")
