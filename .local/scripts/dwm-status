@@ -106,7 +106,7 @@ wind(){
   fi
 
  if [ $age -gt 3600 ]; then
-    curl -s "https://api.openweathermap.org/data/2.5/weather?q=chicago&appid=54a3c1418a58b882ddb57eee40b4b60a" > /tmp/wind
+    curl -s "https://api.openweathermap.org/data/2.5/weather?q=chicago&appid=$OWM_API" > /tmp/wind
  fi
  cat /tmp/wind | jq '.wind.speed'
 }
