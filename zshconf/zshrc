@@ -70,8 +70,8 @@ bindkey -e
 ### HISTORY FILE OPTIONS ###
 # Keep 50000 lines of history within the shell and save it to ~/.zsh_history:
 
-autoload -Uz compinit
-compinit
+#autoload -Uz compinit
+#compinit
 HISTSIZE=50000
 SAVEHIST=50000
 HISTFILE=~/.zsh_history
@@ -98,7 +98,7 @@ nvrun(){
 export KUBECONFIG=/home/sohamg/work/acm-kubes/local.yaml
 EDITOR=nvim
 path+="/home/sohamg/.emacs.d/bin"
-
+setxkbmap -option caps:ctrl_modifier,shift:both_capslock
 #Emacs vterm
 
 vterm_printf(){

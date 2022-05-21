@@ -27,6 +27,7 @@
 (setf stumpwm:*screen-mode-line-format*
       (list "%g || "
 	    "%v || "
+	    "^>"
 	    '(:eval (stumpwm:run-shell-command "date" t))))
 
 (setf *mouse-focus-policy* :click)
@@ -71,11 +72,14 @@
 (bind-top "s-l" "move-focus right")
 
 ;; groups
-(bind-top "s-1" "gselect 1")
-(bind-top "s-2" "gselect 2")
-(bind-top "s-3" "gselect 3")
-(bind-top "s-4" "gselect 4")
-(bind-top "s-5" "gselect 5")
+;; (bind-top "s-1" "gselect 1")
+;; (bind-top "s-2" "gselect 2")
+;; (bind-top "s-3" "gselect 3")
+;; (bind-top "s-4" "gselect 4")
+;; (bind-top "s-5" "gselect 5")
+
+(loop for n in '(1 2 3 4 5 6 7 8 9) do
+  (bind-top (format nil "s-~d" n) (format nil "gselect ~d" n)))
 
 ;; Frames
 (bind-root "l" "hsplit")
