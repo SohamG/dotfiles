@@ -106,6 +106,7 @@ wind(){
   fi
 
  if [ $age -gt 3600 ]; then
+    # Put your openweathermap API key in an env var called OWM_API
     curl -s "https://api.openweathermap.org/data/2.5/weather?q=chicago&appid=$OWM_API" > /tmp/wind
  fi
  cat /tmp/wind | jq '.wind.speed'
