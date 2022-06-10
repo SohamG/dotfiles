@@ -1,0 +1,585 @@
+
+#+STARTUP: overview
+
+* Startup
+
+This region is some basic/sanity check settings.
+
+Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
+  #+BEGIN_SRC emacs-lisp
+    (setq inhibit-startup-message t)
+
+    (scroll-bar-mode -1) ; Disable visible scrollbar
+    (tool-bar-mode -1) ;
+    (tooltip-mode -1) ; Disable tooltips
+    (set-fringe-mode 10) ; Give some breathing room
+
+    (menu-bar-mode -1) ; Disable the menu bar
+    (line-number-mode 1)
+    (display-line-numbers-mode 1)
+    (setq display-line-numbers 'relative)
+
+    ;; Set up the visible bell
+    (setq visible-bell t)
+
+
+    (set-face-attribute 'default nil :font "Fira Code" :height 120)
+
+
+    ;; Make ESC quit prompts
+    (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
+    (global-set-key (kbd "C-x C-b") 'ibuffer)
+
+
+    (savehist-mode 1)
+    (setq use-dialog-box nil)
+    (global-auto-revert-mode 1)
+    (setq user-mail-address "sgumas2@uic.edu")
+
+    (setq org-default-notes-file "~/Notes/main.org")
+    (setq lsp-prefer-flymake nil)
+
+    (auto-save-visited-mode t)
+(setq help-window-select t)
+  #+END_SRC
+
+* Utility
+
+#+BEGIN_SRC emacs-lisp
+  (defun sg/edit-file (file)
+    "Function that opens the @file for editing"
+    (interactive)
+    (switch-to-buffer (find-file-noselect file)))
+#+END_SRC
+* Package Management
+
+07/Mar: Ran some random emacs commands to format/prettyfy code. Fucked it up.
+
+** Setup package management.
+#+BEGIN_SRC emacs-lisp
+  ;; Initialize package sources
+  (require 'package)
+
+  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+			   ("elpa" . "https://elpa.gnu.org/packages/")
+			   ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+
+  (package-initialize)
+  (unless package-archive-contents
+    (package-refresh-contents))
+
+  ;; Initialize use-package on non-Linux platforms
+  (unless
+      (package-installed-p 'use-package) (package-install 'use-package))
+
+  (require 'use-package)
+  (setq use-package-always-ensure t)
+
+  (use-package command-log-mode)
+#+END_SRC
+
+** Completions
+   #+BEGIN_SRC emacs-lisp
+     ;; (use-package swiper)
+
+     ;; (use-package ivy
+     ;;   :diminish
+     ;;   :bind (("C-s" . swiper)
+     ;;          :map ivy-minibuffer-map
+     ;;          ("TAB" . ivy-alt-done)
+     ;;          ("C-l" . ivy-alt-done)
+     ;;          ("C-j" . ivy-next-line)
+     ;;          ("C-k" . ivy-previous-line)
+     ;;          :map ivy-switch-buffer-map
+     ;;          ("C-k" . ivy-previous-line)
+     ;;          ("C-l" . ivy-done)
+     ;;          ("C-d" . ivy-switch-buffer-kill)
+     ;;          :map ivy-reverse-i-search-map
+     ;;          ("C-k" . ivy-previous-line)
+     ;;          ("C-d" . ivy-reverse-i-search-kill))
+     ;;   :config (ivy-mode 1))
+     ;; (use-package ivy-rich
+     ;;   :config
+     ;;   (ivy-rich-mode 1))
+     (use-package vertico
+       :init
+       (vertico-mode)
+       :bind
+       (:map vertico-map
+	     ("C-j" . vertico-next)
+	     ("C-k" . vertico-previous)))
+     (use-package savehist
+       :init
+       (savehist-mode))
+
+     ;; Enable richer annotations using the Marginalia package
+     (use-package marginalia
+       ;; Either bind `marginalia-cycle` globally or only in the minibuffer
+       :bind (:map minibuffer-local-map
+	      ("M-A" . marginalia-cycle))
+
+       ;; The :init configuration is always executed (Not lazy!)
+       :init
+       ;; Must be in the :init section of use-package such that the mode gets
+       ;; enabled right away. Note that this forces loading the package.
+       (marginalia-mode))
+     ;; Optionally use the `orderless' completion style.
+     (use-package orderless
+       :init
+       ;; Configure a custom style dispatcher (see the Consult wiki)
+       ;; (setq orderless-style-dispatchers '(+orderless-dispatch)
+       ;;       orderless-component-separator #'orderless-escapable-split-on-space)
+       (setq completion-styles '(substring orderless basic)
+	     completion-category-defaults nil
+	     completion-category-overrides '((file (styles partial-completion)))))
+#+END_SRC
+*** Consult
+    #+BEGIN_SRC emacs-lisp
+      ;; Example configuration for Consult
+      (use-package consult
+	;; Replace bindings. Lazily loaded due by `use-package'
+	:bind (;; C-c bindings (mode-specific-map)
+	       ("C-c h" . consult-history)
+	       ("C-c m" . consult-mode-command)
+	       ("C-c k" . consult-kmacro)
+	       ;; C-x bindings (ctl-x-map)
+	       ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+	       ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+	       ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+	       ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+	       ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+	       ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+	       ;; Custom M-# bindings for fast register access
+	       ("M-#" . consult-register-load)
+	       ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+	       ("C-M-#" . consult-register)
+	       ;; Other custom bindings
+	       ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+	       ("<help> a" . consult-apropos)            ;; orig. apropos-command
+	       ;; M-g bindings (goto-map)
+	       ("M-g e" . consult-compile-error)
+	       ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+	       ("M-g g" . consult-goto-line)             ;; orig. goto-line
+	       ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+	       ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+	       ("M-g m" . consult-mark)
+	       ("M-g k" . consult-global-mark)
+	       ("M-g i" . consult-imenu)
+	       ("M-g I" . consult-imenu-multi)
+	       ;; M-s bindings (search-map)
+	       ("M-s d" . consult-find)
+	       ("M-s D" . consult-locate)
+	       ("M-s g" . consult-grep)
+	       ("M-s G" . consult-git-grep)
+	       ("M-s r" . consult-ripgrep)
+	       ("M-s l" . consult-line)
+	       ("M-s L" . consult-line-multi)
+	       ("M-s m" . consult-multi-occur)
+	       ("M-s k" . consult-keep-lines)
+	       ("M-s u" . consult-focus-lines)
+	       ;; Isearch integration
+	       ("M-s e" . consult-isearch-history)
+	       :map isearch-mode-map
+	       ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+	       ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+	       ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+	       ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+	       ;; Minibuffer history
+	       :map minibuffer-local-map
+	       ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+	       ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+
+	;; Enable automatic preview at point in the *Completions* buffer. This is
+	;; relevant when you use the default completion UI.
+	:hook (completion-list-mode . consult-preview-at-point-mode)
+
+	;; The :init configuration is always executed (Not lazy)
+	:init
+	(setq register-preview-delay 0.5
+	      register-preview-function #'consult-register-format)
+
+	;; Optionally tweak the register preview window.
+	;; This adds thin lines, sorting and hides the mode line of the window.
+	(advice-add #'register-preview :override #'consult-register-window)
+
+	(advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
+
+	;; Use Consult to select xref locations with preview
+	(setq xref-show-xrefs-function #'consult-xref
+	      xref-show-definitions-function #'consult-xref)
+	:config
+	(consult-customize
+	 consult-theme
+	 :preview-key '(:debounce 0.2 any)
+	 consult-ripgrep consult-git-grep consult-grep
+	 consult-bookmark consult-recent-file consult-xref
+	 consult--source-bookmark consult--source-recent-file
+	 consult--source-project-recent-file
+	 :preview-key (kbd "M-."))
+
+	;; Optionally configure the narrowing key.
+	;; Both < and C-+ work reasonably well.
+	(setq consult-narrow-key "<"))
+
+    #+END_SRC 
+** Themeing
+  #+BEGIN_SRC emacs-lisp 
+    (use-package doom-modeline :ensure t :init (doom-modeline-mode 1)
+      :custom ((doom-modeline-height 15)))
+
+    (use-package doom-themes)
+    (load-theme 'doom-dracula t)
+
+    ;; Frames only mode (yay tiling wm)
+    (use-package frames-only-mode)
+    ;;(frames-only-mode 1)
+
+    ;; (use-package counsel)
+    ;; (counsel-mode 1)
+
+    (use-package nyan-mode
+      :config
+      (nyan-mode)
+      (setq nyan-animate-nyancat t))
+#+END_SRC
+
+** Fonts
+   #+BEGIN_SRC emacs-lisp
+     ;; (use-package unicode-fonts
+     ;;    :ensure t
+     ;;    :config
+     ;;     (unicode-fonts-setup))
+
+     (use-package fira-code-mode
+       :custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
+       :hook prog-mode-hook)                                         ; mode to enable fira-code-mode in
+
+     (use-package emojify
+       :hook (after-init . global-emojify-mode))
+#+END_SRC
+
+** Misc
+   #+BEGIN_SRC emacs-lisp
+     (use-package dockerfile-mode
+       :config
+       (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode)))
+
+     (use-package yaml-mode)
+
+     (use-package highlight-indentation)
+
+     (use-package magit)
+
+     (use-package hydra)
+
+     (use-package which-key
+       :config
+       (setq which-key-idle-delay 0.2)
+       (which-key-mode 1))
+     (setq org-src-tab-acts-natively t)
+
+     (use-package eterm-256color
+       :hook (term-mode . eterm-256color-mode))
+
+     (use-package vterm
+       :commands vterm)
+
+     (use-package company
+       :config
+       (global-company-mode 1)
+       :bind
+       (("M-TAB" . company-complete)))
+
+     (use-package company-shell
+       :after company
+       :config
+       (add-to-list 'company-backends 'company-shell))
+#+END_SRC
+* Evil
+
+Embrace VIM.
+#+BEGIN_SRC emacs-lisp
+  (use-package evil
+    :init
+    (setq evil-want-integration t)
+    (setq evil-want-keybinding nil)
+    (setq evil-want-C-u-scroll t)
+    :config
+    (evil-mode 1))
+
+  (use-package evil-collection
+    :after evil
+    :config
+    (evil-collection-init))
+
+#+END_SRC
+
+* Email
+#+BEGIN_SRC emacs-lisp
+  (use-package mu4e
+    :ensure nil
+
+
+    :config
+
+    (setq mu4e-change-filenames-when-moving t)
+
+    (setq mu4e-update-interval (* 24 (* 60 60)))
+    (setq mu4e-get-mail-command "mbsync -a")
+
+    (setq mu4e-maildir "~/.mail")
+
+    (setq mu4e-drafts-folder "/unimail/[Gmail]/Drafts")
+    (setq mu4e-sent-folder "/unimail/[Gmail]/Sent Mail")
+    (setq mu4e-refile-folder "/unimail/[Gmail]/All Mail")
+    (setq mu4e-trash-folder "/unimail/[Gmail]/Trash"))
+
+  (use-package notmuch)
+
+  (setq send-mail-function 'sendmail-send-it)
+#+END_SRC
+* LSP IntelliSense
+
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-mode
+    :commands lsp
+    :hook (prog-mode-hook . lsp))
+  (use-package lsp-ui
+    :commands lsp-ui-mode
+    :hook (prog-mode-hook . lsp-ui-mode))
+
+  (use-package projectile
+    :ensure t
+    :init
+    (projectile-mode +1)
+    :bind (:map projectile-mode-map))
+
+  ;;    (define-key projectile-mode-map (kbd "SPC p") 'projectile-command-map)
+
+  ;; (use-package counsel-projectile)
+  (use-package clang-format
+    :config
+    (setq clang-format-style "file")
+    (setq clang-format-fallback-style "Google")
+    :hook
+    (c-or-c++-mode . lsp))
+
+  (use-package rainbow-delimiters
+    :init
+    (rainbow-delimiters-mode))
+
+  (use-package smartparens
+    :ensure t
+    :config
+    (setq sp-show-pair-from-inside nil)
+    (require 'smartparens-config)
+    :init
+    (smartparens-global-mode)
+    :diminish smartparens-mode)
+
+  (use-package evil-nerd-commenter
+    :config
+    (evilnc-default-hotkeys))
+
+  (use-package dap-mode
+    :after lsp
+    :config
+    (require 'dap-gdb-lldb)
+    (require 'dap-cpptools)
+    (add-hook 'dap-stopped-hook
+	      (lambda (arg) (call-interactively #'dap-hydra)))
+    (setq dap-auto-configure-features '(sessions locals controls tooltip))
+    (dap-register-debug-template "CPP GDB"
+				 (list :type "gdb"
+				       :request "launch"
+				       :name "GDB::Run")))
+  (use-package slime
+    :config
+    (setq inferior-lisp-program "sbcl"))
+#+END_SRC
+* Org
+** Config
+#+BEGIN_SRC emacs-lisp
+  (defun my-just-one-space ()
+    (interactive)
+    (if (org-at-table-p)
+	(org-table-blank-field)
+      (just-one-space)))
+
+  (use-package org
+    :ensure t
+    :bind (:map org-mode-map ("C-c SPC" . my-just-one-space))
+    :custom
+    (org-todo-keyword-faces
+     '(("TODO" . org-warning)
+       ("IN-PROG" . "green")
+       ("DONE" . "black")
+       ("NEXT" . "blue")))
+    :config
+    (add-hook 'org-mode-hook '(lambda ()
+				(setq org-id-link-to-org-use-id t))))
+  (use-package evil-org
+    :ensure t
+    :after org
+    :hook (org-mode . (lambda () evil-org-mode))
+    :config
+    (require 'evil-org-agenda)
+    (evil-org-agenda-set-keys))
+  (use-package org-contrib)
+  (use-package org-bullets)
+  (use-package gnuplot :ensure t)
+  (require 'org)
+
+  (defun my/auto-call-fill-paragraph-for-org-mode ()
+    "Call two modes to automatically call fill-paragraph for you."
+    (visual-line-mode))
+
+  (add-hook 'org-mode-hook 'my/auto-call-fill-paragraph-for-org-mode)
+  (add-hook 'org-mode-hook 'org-bullets-mode)
+
+  (setq org-hide-leading-stars t)
+
+  (setq org-startup-with-inline-images t)
+
+  (setq  org-log-into-drawer t)
+
+  (setq org-log-done 'time)
+
+  (setq org-export-backends '(ascii beamer html texinfo latex))
+
+  (setq  org-bullets-bullet-list '("◉" "◎" "♠" "○" "►" "◇"))
+
+  (use-package writeroom-mode)
+#+END_SRC
+** Notes and Capture
+#+BEGIN_SRC emacs-lisp
+  (setq org-directory "~/SyncNext/Notes")
+  (setq org-default-notes-file (concat org-directory "/main.org"))
+  (setq org-capture-templates
+	'(("t" "Todo" entry (file+headline org-default-notes-file "Captured Tasks")
+	   "* TODO %?\n  %i\n  %a")
+	  ("j" "Journal" entry (file+datetree (concat org-directory "/journal.org")
+	   "* %?\nEntered on %U\n  %i\n  %a"))))
+  (setq org-todo-keywords
+	'((sequence "TODO(t)" "NEXT(n)" "IN-PROG(i)" "|" "DONE(d)" "WONT-DO")))
+  (setq org-agenda-files "")
+  (setq org-agenda-files (list org-default-notes-file))
+#+END_SRC
+** Use Org-Roam - Note taking/mind mapping system
+:PROPERTIES:
+:ID:       f7c14ce1-21b1-44d7-a79d-c51cdf23a6f7
+:END:
+
+    #+BEGIN_SRC emacs-lisp
+      (use-package org-roam
+	  :config
+	  (setq org-roam-directory "~/SyncNext/Notes")
+	  (org-roam-db-autosync-mode)
+      (setq org-roam-capture-templates
+	    '(("m" "main" plain
+	       "%?"
+	       :if-new (file+head "main/${slug}.org"
+				  "#+title: ${title}\n")
+	       :immediate-finish t
+	       :unnarrowed t)
+	      ("r" "reference" plain "%?"
+	       :if-new
+	       (file+head "reference/${title}.org" "#+title: ${title}\n")
+	       :immediate-finish t
+	       :unnarrowed t)
+	      ("a" "article" plain "%?"
+	       :if-new
+	       (file+head "articles/${title}.org" "#+title: ${title}\n#+filetags: :article:\n")
+	       :immediate-finish t
+	       :unnarrowed t))))
+    #+END_SRC 
+
+* LaTeX
+  #+BEGIN_SRC emacs-lisp
+    (use-package tex
+      :ensure auctex
+      :config 	
+      (setq TeX-auto-save t)
+      (setq TeX-parse-self t))
+  #+END_SRC
+* TODO Keybinds
+  
+Quality of life key binds.
+#+BEGIN_SRC emacs-lisp
+  (use-package general
+    :config
+    (general-create-definer sg/leader-bind
+      :prefix "SPC"))
+
+  (defun sg/edit-config ()
+    "Edit configuration.org"
+    (interactive)
+    (sg/edit-file "~/.config/emacs-vanilla/configuration.org"))
+
+  (defun sg/show-mu4e-shortcuts ()
+    "Show Help for Evil collection for Mu4e"
+    (interactive)
+    (with-output-to-temp-buffer "tmphlp"
+      (set-buffer "tmphlp")
+      (insert-file-contents "~/.config/emacs-vanilla/mu4ehelp.org")))
+
+  (sg/leader-bind
+    :keymaps '(normal emacs visual)
+    "c" '(:ignore t :which-key "Configs")
+    "cc" #'(lambda nil
+	     (interactive)
+	     (sg/edit-file "~/.config/emacs-vanilla/configuration.org")
+	     :which-key "Edit Config")
+    "cm" '(sg/show-mu4e-shortcuts :which-key "Mu4e evil help")
+    "m" '(:ignore t :wk "Email")
+    "mm" 'mu4e
+    "s" '(:ignore t :wk "Shortcuts")
+    "st" '(vterm :wk "VTerm")
+    "p" '(projectile-command-map :wk "Projectile")
+    "w" '(:ignore t :wk "Window Management")
+    "wl" 'evil-window-right
+    "wh" 'evil-window-left
+    "wj" 'evil-window-down
+    "wk" 'evil-window-up
+    "wL" 'evil-window-vsplit
+    "wJ" 'evil-window-split
+    "wd" 'evil-window-delete
+    "wD" 'delete-other-windows
+    "g" '(:ignore t :wk "GDB")
+    "gm" 'gdb-many-windows
+    "gg" 'gdb
+    "gb" 'gud-break
+    "gr" 'gud-run
+    "gn" 'gud-next
+    "gs" 'gud-step
+    "gd" 'dap-hydra
+    "l" '(display-line-numbers-mode :wk Toggle Line numbers)
+    "o" '(:ignore t :wk "Org Globals")
+    "oo" '(org-capture :wk "Capture")
+    "oa" '(org-agenda :wk "Agenda")
+    "on" #'(lambda ()
+	     (interactive)
+	     (sg/edit-file org-default-notes-file)
+	     :wk "Open Notes File")
+    "b" '(:ignore t :wk "Buffers")
+    "bb" 'consult-buffer
+    "SPC" 'clang-format-buffer
+    ) 
+
+	;;; I guess dap-mode is really just better...
+  ;; (defhydra hydra-debug (global-map "<f2>")
+  ;;   "Make Emacs GDB less annoying"
+  ;;   ("s" gud-step "step")
+  ;;   ("n" gud-next "next")
+  ;;   ("u" gud-up "up")
+  ;;   ("d" gud-down "down")
+  ;;   ("f" gud-finish "finish"))
+
+
+#+END_SRC
+  
+
+
+  
+  
