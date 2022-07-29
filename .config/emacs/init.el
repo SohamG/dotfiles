@@ -10,6 +10,7 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    '("234dbb732ef054b109a9e5ee5b499632c63cc24f7c2383a849815dacc1727cb6" default))
+ '(indent-tabs-mode nil)
  '(lsp-ui-sideline-show-code-actions t)
  '(lsp-ui-sideline-show-diagnostics t)
  '(lsp-ui-sideline-show-hover t)
@@ -21,8 +22,10 @@
      ("DONE" . "black")
      ("NEXT" . "blue")))
  '(package-selected-packages
-   '(nyan-mode orderless consult marginalia org-roam auctex evil-org slime ivy-rich dap-mode writeroom-mode org-bullets gnuplot org-plus-contrib w3 evil-nerd-commenter smartparens rainbow-delimiters clang-format magit yaml-mode highlight-indentation dockerfile-mode emojify fira-code-mode unicode-fonts company-lsp counsel-projectile projectile company-shell company company-mode notmuch vterm eterm-256color general evil-collection which-key frames-only-mode evil doom-themes use-package doom-modeline command-log-mode))
+   '(envrc editorconfig org-present emacsql-sqlite3 nix-mode nyan-mode orderless consult marginalia org-roam auctex evil-org slime ivy-rich dap-mode writeroom-mode org-bullets gnuplot org-plus-contrib w3 evil-nerd-commenter smartparens rainbow-delimiters clang-format magit yaml-mode highlight-indentation dockerfile-mode emojify fira-code-mode unicode-fonts company-lsp counsel-projectile projectile company-shell company company-mode notmuch vterm eterm-256color general evil-collection which-key frames-only-mode evil doom-themes use-package doom-modeline command-log-mode))
  '(projectile-compile-use-comint-mode t)
+ '(scheme-program-name "guile")
+ '(tab-width 2)
  '(unicode-fonts-block-font-mapping
    '(("Aegean Numbers"
       ("Noto Color Emoji" "Noto Sans Symbols" "Aegean" "Symbola" "Quivira" "Code2001" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))

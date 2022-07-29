@@ -1,0 +1,8 @@
+[user]
+	name = Soham S Gumaste
+	email = sgumas2@uic.edu
+	signingkey = 6A267442
+[init]
+	defaultBranch = main
+[commit]
+	gpgSign = true

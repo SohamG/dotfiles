@@ -1,4 +1,3 @@
-
 #+STARTUP: overview
 
 * Startup
@@ -41,7 +40,9 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
     (setq lsp-prefer-flymake nil)
 
     (auto-save-visited-mode t)
-(setq help-window-select t)
+    (setq make-backup-files nil)
+    (setq help-window-select t)
+    (setq-default scheme-program-name "guile")
   #+END_SRC
 
 * Utility
@@ -242,6 +243,8 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
       :config
       (nyan-mode)
       (setq nyan-animate-nyancat t))
+
+    (use-package all-the-icons)
 #+END_SRC
 
 ** Fonts
@@ -388,15 +391,25 @@ Embrace VIM.
     (require 'dap-gdb-lldb)
     (require 'dap-cpptools)
     (add-hook 'dap-stopped-hook
-	      (lambda (arg) (call-interactively #'dap-hydra)))
+        (lambda (arg) (call-interactively #'dap-hydra)))
     (setq dap-auto-configure-features '(sessions locals controls tooltip))
     (dap-register-debug-template "CPP GDB"
-				 (list :type "gdb"
-				       :request "launch"
-				       :name "GDB::Run")))
+         (list :type "gdb"
+               :request "launch"
+               :name "GDB::Run")))
   (use-package slime
     :config
     (setq inferior-lisp-program "sbcl"))
+
+  (use-package nix-mode
+    :mode "\\.nix\\'")
+
+  (use-package editorconfig
+    :config
+    (editorconfig-mode 1))
+  (use-package envrc
+    :config
+    (envrc-global-mode))
 #+END_SRC
 * Org
 ** Config
@@ -453,6 +466,9 @@ Embrace VIM.
   (use-package writeroom-mode)
 #+END_SRC
 ** Notes and Capture
+:PROPERTIES:
+:ID:       c50d208c-7836-438c-ab40-29b9142a639f
+:END:
 #+BEGIN_SRC emacs-lisp
   (setq org-directory "~/SyncNext/Notes")
   (setq org-default-notes-file (concat org-directory "/main.org"))
@@ -471,30 +487,42 @@ Embrace VIM.
 :ID:       f7c14ce1-21b1-44d7-a79d-c51cdf23a6f7
 :END:
 
-    #+BEGIN_SRC emacs-lisp
-      (use-package org-roam
-	  :config
-	  (setq org-roam-directory "~/SyncNext/Notes")
-	  (org-roam-db-autosync-mode)
-      (setq org-roam-capture-templates
-	    '(("m" "main" plain
-	       "%?"
-	       :if-new (file+head "main/${slug}.org"
-				  "#+title: ${title}\n")
-	       :immediate-finish t
-	       :unnarrowed t)
-	      ("r" "reference" plain "%?"
-	       :if-new
-	       (file+head "reference/${title}.org" "#+title: ${title}\n")
-	       :immediate-finish t
-	       :unnarrowed t)
-	      ("a" "article" plain "%?"
-	       :if-new
-	       (file+head "articles/${title}.org" "#+title: ${title}\n#+filetags: :article:\n")
-	       :immediate-finish t
-	       :unnarrowed t))))
-    #+END_SRC 
+#+BEGIN_SRC emacs-lisp
+  (use-package emacsql-sqlite3)
 
+  (use-package org-roam
+    :after emacsql-sqlite3
+    :config
+    (setq org-roam-directory "~/SyncNext/Notes")
+    (setq org-roam-database-connector 'sqlite3)
+    (org-roam-db-autosync-mode)
+    (setq org-roam-capture-templates
+	  '(("m" "main" plain
+	     "%?"
+	     :if-new (file+head "main/${slug}.org"
+				"#+title: ${title}\n")
+	     :immediate-finish t
+	     :unnarrowed t)
+	    ("r" "reference" plain "%?"
+	     :if-new
+	     (file+head "reference/${title}.org" "#+title: ${title}\n")
+	     :immediate-finish t
+	     :unnarrowed t)
+	    ("a" "article" plain "%?"
+	     :if-new
+	     (file+head "articles/${title}.org" "#+title: ${title}\n#+filetags: :article:\n")
+	     :immediate-finish t
+	     :unnarrowed t))))
+
+#+END_SRC 
+
+** Org Present
+#+BEGIN_SRC emacs-lisp
+  (use-package org-present)
+  (use-package visual-fill-column
+    :config
+    (setq-default visual-fill-column-center-text t))
+#+END_SRC
 * LaTeX
   #+BEGIN_SRC emacs-lisp
     (use-package tex
@@ -515,27 +543,25 @@ Quality of life key binds.
   (defun sg/edit-config ()
     "Edit configuration.org"
     (interactive)
-    (sg/edit-file "~/.config/emacs-vanilla/configuration.org"))
+    (sg/edit-file "~/.config/emacs/configuration.org"))
 
   (defun sg/show-mu4e-shortcuts ()
     "Show Help for Evil collection for Mu4e"
     (interactive)
     (with-output-to-temp-buffer "tmphlp"
       (set-buffer "tmphlp")
-      (insert-file-contents "~/.config/emacs-vanilla/mu4ehelp.org")))
+      (insert-file-contents "~/.config/emacs/mu4ehelp.org")))
 
   (sg/leader-bind
     :keymaps '(normal emacs visual)
     "c" '(:ignore t :which-key "Configs")
-    "cc" #'(lambda nil
-	     (interactive)
-	     (sg/edit-file "~/.config/emacs-vanilla/configuration.org")
-	     :which-key "Edit Config")
+    "cc" '(sg/edit-config :wk "Edit config file")
     "cm" '(sg/show-mu4e-shortcuts :which-key "Mu4e evil help")
     "m" '(:ignore t :wk "Email")
     "mm" 'mu4e
     "s" '(:ignore t :wk "Shortcuts")
     "st" '(vterm :wk "VTerm")
+    "si" '(indent-region :wk "Indent Region")
     "p" '(projectile-command-map :wk "Projectile")
     "w" '(:ignore t :wk "Window Management")
     "wl" 'evil-window-right
@@ -564,8 +590,7 @@ Quality of life key binds.
 	     :wk "Open Notes File")
     "b" '(:ignore t :wk "Buffers")
     "bb" 'consult-buffer
-    "SPC" 'clang-format-buffer
-    ) 
+    "SPC" 'clang-format-buffer) 
 
 	;;; I guess dap-mode is really just better...
   ;; (defhydra hydra-debug (global-map "<f2>")
