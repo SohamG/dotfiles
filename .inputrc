@@ -1,7 +1,6 @@
 $include /etc/inputrc
 set editing-mode vi
 set show-mode-in-prompt on
-$if mode=vi
 set keymap vi-command
 # these are for vi-command mode
 "\e[A": history-search-backward
@@ -12,5 +11,8 @@ set keymap vi-insert
 # these are for vi-insert mode
 "\e[A": history-search-backward
 "\e[B": history-search-forward
-$endif
-
+set bell-style visible
+set colored-stats on
+set completion-ignore-case
+TAB: menu-complete
+set show-all-if-ambiguous on
