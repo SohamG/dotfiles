@@ -1,0 +1,720 @@
+#+STARTUP: show3levels
+#+TITLE: Emacs Configuration
+#+PROPERTY: header-args:emacs-lisp :tangle init.el
+
+* Startup
+This region is some basic/sanity check settings.
+Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
+#+BEGIN_SRC emacs-lisp
+  (setq inhibit-startup-message t)
+  (scroll-bar-mode -1) ; Disable visible scrollbar
+  (tool-bar-mode -1) ;
+  (tooltip-mode -1) ; Disable tooltips
+  (set-fringe-mode 10) ; Give some breathing room
+  (menu-bar-mode -1) ; Disable the menu bar
+  (line-number-mode 1)
+  (display-line-numbers-mode 1)
+  (setq display-line-numbers 'relative)
+  ;; Set up the visible bell
+  (setq visible-bell t)
+  (set-face-attribute 'default nil :font "Fira Code" :height 120)
+  ;; Make ESC quit prompts
+  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+  ;; (global-set-key (kbd "C-x C-b") 'ibuffer)
+  (savehist-mode 1)
+  (setq use-dialog-box nil)
+  (global-auto-revert-mode 1)
+  (setq user-mail-address "sgumas2@uic.edu")
+  ;; (setq lsp-prefer-flymake nil)
+  (auto-save-visited-mode t)
+  (setq make-backup-files nil)
+  (setq help-window-select t)
+  (setq-default scheme-program-name "guile")
+  (tab-bar-mode 1)
+  (transient-mark-mode -1)
+  ;; Silence compiler warnings as they can be pretty disruptive
+  (setq native-comp-async-report-warnings-errors nil)
+
+  ;; Set the right directory to store the native comp cache
+  (add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory))
+
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (load custom-file)
+#+END_SRC
+* Utility
+#+BEGIN_SRC emacs-lisp
+  (defun sg/edit-file (file)
+    "Function that opens the @file for editing"
+    (interactive)
+    (switch-to-buffer (find-file-noselect file)))
+#+END_SRC
+
+* Package Management
+** Setup package management.
+#+BEGIN_SRC emacs-lisp
+  ;; Initialize package sources
+  (require 'package)
+  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+			   ("elpa" . "https://elpa.gnu.org/packages/")
+			   ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+  (package-initialize)
+  (unless package-archive-contents
+    (package-refresh-contents))
+  ;; Initialize use-package on non-Linux platforms
+  (unless
+      (package-installed-p 'use-package) (package-install 'use-package))
+  (require 'use-package-ensure)
+  (setq use-package-always-ensure t)
+  (use-package command-log-mode)
+  (use-package auto-package-update
+    :config
+    (setq auto-package-update-delete-old-versions t)
+    (setq auto-package-update-hide-results t)
+    (auto-package-update-maybe))
+#+END_SRC
+
+#+RESULTS:
+: t
+
+** Completions
+**** Vertico
+   #+BEGIN_SRC emacs-lisp
+     ;; (use-package vertico
+     ;;   :init
+     ;;   (vertico-mode)
+     ;;   :bind
+     ;;   (:map vertico-map
+     ;; 	     ("C-j" . vertico-next)
+     ;; 	     ("C-k" . vertico-previous)))
+     ;; (use-package savehist
+     ;;   :init
+     ;;   (savehist-mode))
+     ;; ;; Enable richer annotations using the Marginalia package
+     ;; (use-package marginalia
+     ;;   ;; Either bind `marginalia-cycle` globally or only in the minibuffer
+     ;;   :bind (:map minibuffer-local-map
+     ;; 		   ("M-A" . marginalia-cycle))
+     ;;   ;; The :init configuration is always executed (Not lazy!)
+     ;;   :init
+     ;;   ;; Must be in the :init section of use-package such that the mode gets
+     ;;   ;; enabled right away. Note that this forces loading the package.
+     ;;   (marginalia-mode))
+     ;; ;; Optionally use the `orderless' completion style.
+     ;; (use-package orderless
+     ;;   :ensure t
+     ;;   :custom
+     ;;   (completion-styles '(orderless basic))
+     ;;   (completion-category-overrides '((file (styles basic partial-completion)))))
+     ;; (use-package yasnippet
+     ;;   :config
+     ;;   (yas-global-mode 1)
+     ;;   (setq yas-snippet-dirs '("~/.config/emacs/snippets")))
+     ;; (use-package yasnippet-snippets
+     ;;   :after yasnippet)
+#+END_SRC
+
+#+RESULTS:
+**** Ivy
+    #+BEGIN_SRC emacs-lisp
+      (use-package ivy
+	:config
+	(ivy-mode)
+	:bind
+	(:map ivy-mode-map
+	("C-j" . 'ivy-next-line)
+	("C-k" . 'ivy-previous-line)))
+
+      (use-package counsel
+	:after ivy
+	:config
+	(counsel-mode))
+      (use-package swiper
+	:after ivy)
+    #+END_SRC
+**** Consult
+    #+BEGIN_SRC emacs-lisp :tangle nil
+      ;; Example configuration for Consult
+      (use-package consult
+	;; Replace bindings. Lazily loaded due by `use-package'
+	:bind (;; C-c bindings (mode-specific-map)
+	       ("C-c h" . consult-history)
+	       ("C-c m" . consult-mode-command)
+	       ("C-c k" . consult-kmacro)
+	       ;; C-x bindings (ctl-x-map)
+	       ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+	       ;; ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+	       ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+	       ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+	       ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+	       ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+	       ;; Custom M-# bindings for fast register access
+	       ("M-#" . consult-register-load)
+	       ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+	       ("C-M-#" . consult-register)
+	       ;; Other custom bindings
+	       ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+	       ("<help> a" . consult-apropos)            ;; orig. apropos-command
+	       ;; M-g bindings (goto-map)
+	       ("M-g e" . consult-compile-error)
+	       ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+	       ("M-g g" . consult-goto-line)             ;; orig. goto-line
+	       ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+	       ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+	       ("M-g m" . consult-mark)
+	       ("M-g k" . consult-global-mark)
+	       ("M-g i" . consult-imenu)
+	       ("M-g I" . consult-imenu-multi)
+	       ;; M-s bindings (search-map)
+	       ("M-s d" . consult-find)
+	       ("M-s D" . consult-locate)
+	       ("M-s g" . consult-grep)
+	       ("M-s G" . consult-git-grep)
+	       ("M-s r" . consult-ripgrep)
+	       ("M-s l" . consult-line)
+	       ("M-s L" . consult-line-multi)
+	       ("M-s m" . consult-multi-occur)
+	       ("M-s k" . consult-keep-lines)
+	       ("M-s u" . consult-focus-lines)
+	       ;; Isearch integration
+	       ("M-s e" . consult-isearch-history)
+	       :map isearch-mode-map
+	       ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+	       ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+	       ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+	       ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+	       ;; Minibuffer history
+	       :map minibuffer-local-map
+	       ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+	       ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+
+	;; Enable automatic preview at point in the *Completions* buffer. This is
+	;; relevant when you use the default completion UI.
+	:hook (completion-list-mode . consult-preview-at-point-mode)
+
+	;; The :init configuration is always executed (Not lazy)
+	:init
+	(setq register-preview-delay 0.5
+	      register-preview-function #'consult-register-format)
+
+	;; Optionally tweak the register preview window.
+	;; This adds thin lines, sorting and hides the mode line of the window.
+	(advice-add #'register-preview :override #'consult-register-window)
+
+	;; (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
+
+	;; Use Consult to select xref locations with preview
+	(setq xref-show-xrefs-function #'consult-xref
+	      xref-show-definitions-function #'consult-xref)
+	:config
+	(consult-customize
+	 consult-theme
+	 :preview-key '(:debounce 0.2 any)
+	 consult-ripgrep consult-git-grep consult-grep
+	 consult-bookmark consult-recent-file consult-xref
+	 consult--source-bookmark consult--source-recent-file
+	 consult--source-project-recent-file
+	 :preview-key (kbd "M-."))
+
+	;; Optionally configure the narrowing key.
+	;; Both < and C-+ work reasonably well.
+	(setq consult-narrow-key "<"))
+
+    #+END_SRC 
+
+    #+RESULTS:
+    : consult-history
+
+
+** Themeing
+  #+BEGIN_SRC emacs-lisp
+    (use-package doom-modeline :ensure t :init (doom-modeline-mode 1)
+      :custom ((doom-modeline-height 15)))
+    (use-package doom-themes)
+    (load-theme 'doom-dracula t)
+    ;; Frames only mode (yay tiling wm)
+    (use-package frames-only-mode)
+    ;;(frames-only-mode 1)
+    ;; (use-package counsel)
+    ;; (counsel-mode 1)
+    (use-package nyan-mode
+      :config
+      (nyan-mode)
+      (setq nyan-animate-nyancat t))
+    (use-package all-the-icons)
+#+END_SRC
+
+#+RESULTS:
+
+** Fonts
+   #+BEGIN_SRC emacs-lisp
+     (use-package fira-code-mode
+       :custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
+       :hook prog-mode-hook)                                         ; mode to enable fira-code-mode in
+     (use-package emojify
+       :hook (after-init . global-emojify-mode))
+#+END_SRC
+
+#+RESULTS:
+| x-wm-set-size-hint | global-emojify-mode | tramp-register-archive-file-name-handler | magit-maybe-define-global-key-bindings | table--make-cell-map |
+
+** Misc
+:PROPERTIES:
+:ID:       7242222b-3a5e-4c44-8292-057e6db2f0cb
+:END:
+   #+BEGIN_SRC emacs-lisp
+     (use-package dockerfile-mode
+       :config
+       (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode)))
+     (use-package yaml-mode)
+     (use-package highlight-indentation)
+     (use-package magit)
+     (use-package hydra)
+     (use-package which-key
+       :config
+       (setq which-key-idle-delay 0.2)
+       (which-key-mode 1))
+     (setq org-src-tab-acts-natively t)
+     (use-package eterm-256color)
+     (use-package vterm
+       :load-path "~/.local/share/emacs-libvterm"
+       :commands vterm)
+     (use-package company
+       :config
+       (global-company-mode 1)
+       (setq company-idle-delay 0.2
+	     company-minimum-prefix-length 2)
+       :bind
+       (("M-TAB" . company-complete)))
+     (use-package company-box
+       :hook (company-mode . company-box-mode))
+     (use-package company-shell
+       :after company
+       :config
+       (add-to-list 'company-backends 'company-shell))
+     (use-package plantuml-mode
+       :config
+       (setq plantuml-default-exec-mode 'executable))
+
+
+     (use-package wc-mode)
+
+     (use-package minions
+       :config
+       (minions-mode 1))
+     (add-to-list 'global-mode-string '("" wc-buffer-stats))
+#+END_SRC
+
+#+RESULTS:
+: t
+
+* Evil
+Embrace VIM.
+#+BEGIN_SRC emacs-lisp
+  (use-package evil
+    :init
+    (setq evil-want-integration t
+	  evil-want-keybinding nil
+	  evil-want-C-u-scroll t)
+    :config
+    (evil-mode 1))
+  (use-package evil-collection
+    :after evil
+    :config
+    (evil-collection-init))
+
+  (use-package undo-tree
+    :after evil
+    :diminish
+    :config
+    (evil-set-undo-system 'undo-tree)
+    (global-undo-tree-mode 1))
+#+END_SRC
+
+#+RESULTS:
+
+* Email
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package mu4e
+  ;;   :ensure nil
+
+
+  ;;   :config
+
+  ;;   (setq mu4e-change-filenames-when-moving t)
+
+  ;;   (setq mu4e-update-interval (* 24 (* 60 60)))
+  ;;   (setq mu4e-get-mail-command "mbsync -a")
+
+  ;;   (setq mu4e-maildir "~/.mail")
+
+  ;;   (setq mu4e-drafts-folder "/unimail/[Gmail]/Drafts")
+  ;;   (setq mu4e-sent-folder "/unimail/[Gmail]/Sent Mail")
+  ;;   (setq mu4e-refile-folder "/unimail/[Gmail]/All Mail")
+  ;;   (setq mu4e-trash-folder "/unimail/[Gmail]/Trash"))
+
+  ;; (use-package notmuch)
+
+  ;; (setq send-mail-function 'sendmail-send-it)
+#+END_SRC
+
+#+RESULTS:
+
+* LSP IntelliSense
+#+BEGIN_SRC emacs-lisp
+	;; (use-package lsp-mode
+	;;   :commands lsp
+	;;   :hook (prog-mode-hook . lsp))
+	;; (use-package lsp-ui
+	;;   :commands lsp-ui-mode
+	;;   :hook (prog-mode-hook . lsp-ui-mode))
+	(use-package eglot)
+	(use-package eglot-fsharp
+	:config
+	(setq inferior-fsharp-program "dotnet fsi --readline-"))
+	(use-package consult-eglot)
+	(use-package projectile
+	:ensure t
+	:init
+	(projectile-mode +1)
+	:bind (:map projectile-mode-map))
+	;;    (define-key projectile-mode-map (kbd "SPC p") 'projectile-command-map)
+	;; (use-package counsel-projectile)
+	(use-package clang-format
+	:config
+	(setq clang-format-style "file")
+	(setq clang-format-fallback-style "Google")
+	:hook
+	(c-or-c++-mode . lsp))
+	(use-package rainbow-delimiters
+	:hook
+	(prog-mode . rainbow-delimiters-mode))
+	(use-package smartparens
+	:ensure t
+	:config
+	(setq sp-show-pair-from-inside nil)
+	(require 'smartparens-config)
+	:init
+	:diminish smartparens-mode
+	:config
+	(smartparens-global-mode))
+	;; (use-package paredit
+	;;   :hook
+	;;   (prog-mode . enable-paredit-mode))
+	;; (use-package evil-paredit
+	;;   :hook
+	;;   (paredit-mode-hook . evil-paredit-mode))
+
+	(use-package evil-nerd-commenter
+	:config
+	(evilnc-default-hotkeys))
+	;; (use-package dap-mode
+	;; 	:after lsp
+	;; 	:config
+	;; 	(require 'dap-gdb-lldb)
+	;; 	(require 'dap-cpptools)
+	;; 	(add-hook 'dap-stopped-hook
+	;; 		  (lambda (arg) (call-interactively #'dap-hydra)))
+	;; 	(setq dap-auto-configure-features '(sessions locals controls tooltip))
+	;; 	(dap-register-debug-template "CPP GDB"
+	;; 				 (list :type "gdb"
+	;; 					   :request "launch"
+	;; 					   :name "GDB::Run")))
+	(use-package slime
+	:config
+	(setq inferior-lisp-program "sbcl"))
+	(use-package nix-mode
+	:mode "\\.nix\\'")
+	(use-package editorconfig
+	:config
+	(editorconfig-mode 1))
+	(use-package envrc
+	:config
+	(envrc-global-mode))
+	(use-package emmet-mode)
+	;; (use-package lsp-tailwindcss)
+	(use-package zig-mode)
+	(use-package rust-mode)
+	(setq tree-sitter-load-path "~/.emacs.d/elpa/tree-sitter-langs-20230311.1456/bin")
+#+END_SRC
+
+#+RESULTS:
+
+** Scheme
+#+BEGIN_SRC emacs-lisp
+      (use-package geiser-guile
+        :mode
+        ("\\.scm\\'" . geiser-mode))
+      (use-package ac-geiser)
+#+END_SRC
+
+#+RESULTS:
+
+** F#
+#+BEGIN_SRC emacs-lisp
+  (use-package fsharp-mode)
+#+END_SRC
+* Org
+:PROPERTIES:
+:ID:       7186d384-961c-45a1-99e7-7651f07084ac
+:END:
+** Config
+#+BEGIN_SRC emacs-lisp
+	  (defun my-just-one-space ()
+	(interactive)
+	(if (org-at-table-p)
+	  (org-table-blank-field)
+	  (just-one-space)))
+	  (use-package org
+	:ensure t
+	:bind (:map org-mode-map ("C-c SPC" . my-just-one-space))
+	:hook org-indent-mode
+	:custom
+	(org-todo-keyword-faces
+	 '(("TODO" . org-warning)
+	   ("IN-PROG" . "green")
+	   ("DONE" . "black")
+	   ("NEXT" . "yellow")
+  ("LIMBO" . "brown")))
+	:config
+
+	(add-hook 'completion-at-point-functions 'pcomplete-completions-at-point nil t)
+	(add-hook 'org-mode-hook '(lambda ()
+		(setq org-id-link-to-org-use-id t))))
+	  (use-package evil-org
+	:ensure t
+	:after org
+	:hook (org-mode . (lambda () evil-org-mode))
+	:config
+	(require 'evil-org-agenda)
+	(evil-org-agenda-set-keys))
+	  (use-package org-contrib)
+  (use-package ox-rss)
+	  (use-package org-bullets)
+	  (use-package gnuplot :ensure t)
+	  (defun my/auto-call-fill-paragraph-for-org-mode ()
+	"Call two modes to automatically call fill-paragraph for you."
+	(visual-line-mode))
+	  (add-hook 'org-mode-hook 'my/auto-call-fill-paragraph-for-org-mode)
+	  (add-hook 'org-mode-hook 'org-bullets-mode)
+	  (setq org-hide-leading-stars t)
+	  (setq org-startup-with-inline-images t)
+	  (setq  org-log-into-drawer t)
+	  (setq org-log-done 'time)
+	  (setq org-export-backends '(ascii beamer html texinfo latex))
+	  (setq  org-bullets-bullet-list '("◉" "◎" "○" "►" "◇""♠" ))
+	  (use-package writeroom-mode)
+	  (org-babel-do-load-languages
+	   'org-babel-load-languages
+	   '((plantuml . t))) ; this line activates plantuml
+	  (setq org-plantuml-exec-mode 'plantuml)
+	  (add-to-list
+	'org-src-lang-modes '("plantuml" . plantuml))
+	  (defun my-org-confirm-babel-evaluate (lang body)
+	(not (string= lang "plantuml")))
+	  (setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
+#+END_SRC
+
+#+RESULTS:
+: my-org-confirm-babel-evaluate
+
+** Notes and Capture
+:PROPERTIES:
+:ID:       c50d208c-7836-438c-ab40-29b9142a639f
+:END:
+#+BEGIN_SRC emacs-lisp
+  (defun my/agenda ()
+    (interactive)
+    (append (directory-files-recursively org-directory "\\todo\.org$") '("main.org")))
+  (setq org-directory "/mnt/nextcloud/Notes"
+	org-default-notes-file (concat org-directory "/main.org")
+	org-capture-templates
+	'(("n" "Note" entry (file+headline org-default-notes-file "Master Notes")
+	   "* %^{TITLE|untitled} %^g %i\n %T \n %?\n")
+	  ("t" "Todo" entry (file org-default-notes-file)
+	   "* TODO %^{TITLE|untitled} %^g %i\n %T \n %?\n" :tree-type month))
+	org-todo-keywords
+	'((sequence "TODO(t)" "NEXT(n)" "IN-PROG(i)" "|" "DONE(d)" "WONT-DO(w@)" "LIMBO(l)"))
+	org-id-link-to-org-use-id t
+	org-refile-targets '((nil :maxlevel . 3))
+	org-agenda-files (list org-default-notes-file))
+  (defun my/make-note ()
+    (interactive)
+    (find-file org-directory))
+#+END_SRC
+
+#+RESULTS:
+: my/reagenda
+
+*** Deft
+:PROPERTIES:
+:ID:       38b33334-cd2b-4b51-b598-4023328951b7
+:END:
+#+BEGIN_SRC emacs-lisp
+  (use-package deft
+    :config
+    (setq deft-directory "/mnt/nextcloud/Notes"
+	  deft-extensions '("org")
+	  deft-recursive t
+	  deft-use-filename-as-title nil)
+    :bind
+    ("<f8>" . deft))
+    
+#+END_SRC
+
+#+RESULTS:
+: deft
+
+** Use Org-Roam - Note taking/mind mapping system
+#+BEGIN_SRC emacs-lisp :tangle nil
+  (use-package emacsql-sqlite3)
+  (use-package org-roam
+    :after emacsql-sqlite3
+    :config
+    (setq org-roam-directory "~/Notes")
+    (setq org-roam-database-connector 'sqlite3)
+    (org-roam-db-autosync-mode)
+    (setq org-roam-capture-templates
+	  '(("m" "main" plain
+	     "%?"
+	     :if-new (file+head "main/${slug}.org"
+				"#+title: ${title}\n")
+	     :immediate-finish t
+	     :unnarrowed t)
+	    ("r" "reference" plain "%?"
+	     :if-new
+	     (file+head "reference/${title}.org" "#+title: ${title}\n")
+	     :immediate-finish t
+	     :unnarrowed t)
+	    ("a" "article" plain "%?"
+	     :if-new
+	     (file+head "articles/${title}.org" "#+title: ${title}\n#+filetags: :article:\n")
+	     :immediate-finish t
+	     :unnarrowed t))))
+
+#+END_SRC 
+
+#+RESULTS:
+: t
+
+** Org Present
+#+BEGIN_SRC emacs-lisp
+  (use-package org-present)
+  (use-package visual-fill-column
+    :config
+    (setq-default visual-fill-column-center-text t))
+#+END_SRC
+
+#+RESULTS:
+: t
+
+* LaTeX
+  #+BEGIN_SRC emacs-lisp
+    (use-package tex
+      :ensure auctex
+      :config 	
+      (setq TeX-auto-save t)
+      (setq TeX-parse-self t))
+  #+END_SRC
+
+  #+RESULTS:
+  : t
+
+* Keybinds 
+:PROPERTIES:
+:ID:       6310193f-372c-47e2-9c19-e5d990ad46f6
+:END:
+Quality of life key binds.
+#+BEGIN_SRC emacs-lisp
+  (use-package general
+    :config
+    (general-create-definer sg/leader-bind
+      :prefix "SPC"))
+  (defun my/capture-todo ()
+  (interactive)
+    (org-capture nil "t"))
+  (defun my/capture-note ()
+  (interactive)
+    (org-capture nil "n"))
+  (defun sg/edit-config ()
+    "Edit configuration.org"
+    (interactive)
+    (sg/edit-file "~/.emacs.d/configuration.org"))
+  (defun sg/edit-nix-config ()
+    "Edit configuration.org"
+    (interactive)
+    (sg/edit-file "~/nixcfg/system/configuration.nix"))
+  (defun sg/show-mu4e-shortcuts ()
+    "Show Help for Evil collection for Mu4e"
+    (interactive)
+    (with-output-to-temp-buffer "tmphlp"
+      (set-buffer "tmphlp")
+      (insert-file-contents "~/.config/emacs/mu4ehelp.org")))
+  (sg/leader-bind
+    :keymaps '(normal emacs visual)
+    "c" '(:ignore t :which-key "Configs")
+    "cc" '(sg/edit-config :wk "Edit config file")
+    "cn" '(sg/edit-nix-config :wk "Nix System Config")
+    "cm" '(sg/show-mu4e-shortcuts :which-key "Mu4e evil help")
+    "m" '(:ignore t :wk "Email")
+    "mm" 'mu4e
+    "s" '(:ignore t :wk "Shortcuts")
+    "st" '(vterm :wk "VTerm")
+    "si" '(indent-region :wk "Indent Region")
+    "p" '(projectile-command-map :wk "Projectile")
+    "w" '(:ignore t :wk "Window Management")
+    "wl" 'evil-window-right
+    "wh" 'evil-window-left
+    "wj" 'evil-window-down
+    "wk" 'evil-window-up
+    "wL" 'evil-window-vsplit
+    "wJ" 'evil-window-split
+    "wd" 'evil-window-delete
+    "wD" 'delete-other-windows
+    "g" '(:ignore t :wk "GDB")
+    "gm" 'gdb-many-windows
+    "gg" 'gdb
+    "gb" 'gud-break
+    "gr" 'gud-run
+    "gn" 'gud-next
+    "gs" 'gud-step
+    "gd" 'dap-hydra
+    "l" '(display-line-numbers-mode :wk Toggle Line numbers)
+    "o" '(:ignore t :wk "Org Globals")
+    "oo" '(org-capture :wk "Capture")
+    "oa" '(org-agenda :wk "Agenda")
+    "oN" '(my/make-note :wk "Create New Note File")
+    "ot" '(my/capture-todo :wk "Create TODO")
+    "on" '(my/capture-note :wk "Create Note")
+    "o." '(my/reagenda :wk "Refresh org-agenda-files")
+    "b" '(:ignore t :wk "Buffers")
+    "bb" 'consult-buffer
+    "SPC" 'clang-format-buffer)
+      ;;; I guess dap-mode is really just better...
+  ;; (defhydra hydra-debug (global-map "<f2>")
+  ;;   "Make Emacs GDB less annoying"
+  ;;   ("s" gud-step "step")
+  ;;   ("n" gud-next "next")
+  ;;   ("u" gud-up "up")
+  ;;   ("d" gud-down "down")
+  ;;   ("f" gud-finish "finish"))
+  ;; (general-def 'normal lsp-mode :definer 'minor-mode
+  ;;   "SPC ," lsp-command-map)
+#+END_SRC
+
+#+RESULTS:
+
+* EZRepl - Minor Mode
+    #+BEGIN_SRC emacs-lisp :tangle nil
+      (define-minor-mode ezrepl-mode
+	"Simple minor mode for running any interactive command as a repl"
+	:global nil
+
+	:lighter " EZRepl"
+
+	:keymap '(([C-c C-e] . ezrepl-send-line))
+
+	(make-variable-buffer-local
+	 (defvar ezrepl-buffer-name #<"*ezrepl*">))
+	(defun ezrepl-send-line ()
+	  "Send line to current repl."))
+    #+END_SRC

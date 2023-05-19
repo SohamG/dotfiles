@@ -124,3 +124,8 @@ export KUBECONFIG=/home/sohamg/work/acm-kubes/local.yaml
 #     alias clear='vterm_printf "51;Evterm-clear-scrollback";tput clear'
 # fi
 eval "$(direnv hook zsh)"
+mysync() {
+	rsync -e 'ssh -p 6969' $@
+}
+
+alias http="python3 -m http.server 8080 --directory"
