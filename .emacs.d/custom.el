@@ -5,14 +5,18 @@
  ;; If there is more than one, they won't work right.
  '(column-number-mode t)
  '(connection-local-criteria-alist
-	 '(((:application tramp :protocol "flatpak")
+	 '(((:machine "sohamg.xyz")
+			sohamg.xyz-vars)
+		 ((:application tramp :protocol "flatpak")
 			tramp-container-connection-local-default-flatpak-profile)
 		 ((:application eshell)
 			eshell-connection-default-profile)
 		 ((:application tramp)
 			tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
  '(connection-local-profile-alist
-	 '((tramp-container-connection-local-default-flatpak-profile
+	 '((sohamg.xyz-vars
+			(company-gtags--executable-connection))
+		 (tramp-container-connection-local-default-flatpak-profile
 			(tramp-remote-path "/app/bin" tramp-default-remote-path "/bin" "/usr/bin" "/sbin" "/usr/sbin" "/usr/local/bin" "/usr/local/sbin" "/local/bin" "/local/freeware/bin" "/local/gnu/bin" "/usr/freeware/bin" "/usr/pkg/bin" "/usr/contrib/bin" "/opt/bin" "/opt/sbin" "/opt/local/bin"))
 		 (eshell-connection-default-profile
 			(eshell-path-env-list))
@@ -93,6 +97,7 @@
  '(global-whitespace-mode t)
  '(global-whitespace-newline-mode nil)
  '(initial-scratch-message "Scratch Bufferino lol\12")
+ '(make-backup-files nil)
  '(org-agenda-custom-commands
 	 '(("n" "Agenda and all TODOs"
 			((agenda "" nil)
@@ -107,7 +112,8 @@
  '(org-agenda-todo-ignore-with-date t)
  '(org-deadline-warning-days 3)
  '(package-selected-packages
-	 '(typescript-mode lsp-mode yasnippet vertico tree-sitter-langs svelte-mode pdf-tools web-mode ox-rss eglot evil company hydra dap-mode consult-eglot eglot-fsharp plantuml-mode fsharp-mode undo-tree slime rainbow-delimiters highlight-indentation zig-mode use-package emmet-mode auto-package-update spinner writeroom-mode nyan-mode which-key envrc org-roam marginalia clang-format org-contrib lsp-ui auctex gnuplot org-bullets emacsql-sqlite3 evil-org frames-only-mode ac-geiser nix-mode yaml-mode orderless dockerfile-mode command-log-mode general fira-code-mode projectile rust-mode yasnippet-snippets evil-nerd-commenter emojify deft counsel smartparens minions notmuch eterm-256color company-box magit geiser-guile consult evil-collection wc-mode org-present evil-paredit lsp-tailwindcss company-shell doom-themes))
+	 '(evil-surround merlin-company editorconfig dune tuareg typescript-mode lsp-mode yasnippet vertico tree-sitter-langs svelte-mode pdf-tools web-mode ox-rss eglot evil company hydra dap-mode consult-eglot eglot-fsharp plantuml-mode fsharp-mode undo-tree slime rainbow-delimiters highlight-indentation zig-mode use-package emmet-mode auto-package-update spinner writeroom-mode nyan-mode which-key envrc org-roam marginalia clang-format org-contrib lsp-ui auctex gnuplot org-bullets emacsql-sqlite3 evil-org frames-only-mode ac-geiser nix-mode yaml-mode orderless dockerfile-mode command-log-mode general fira-code-mode projectile rust-mode yasnippet-snippets evil-nerd-commenter emojify deft counsel smartparens minions notmuch eterm-256color company-box magit geiser-guile consult evil-collection wc-mode org-present evil-paredit lsp-tailwindcss company-shell doom-themes))
+ '(sp-show-pair-from-inside t)
  '(tab-width 2)
  '(undo-tree-auto-save-history nil)
  '(warning-suppress-log-types '((use-package)))

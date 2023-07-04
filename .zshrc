@@ -103,7 +103,7 @@ nvrun(){
     # env __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia $@
     prime-run $@
 }
-export KUBECONFIG=/home/sohamg/work/acm-kubes/local.yaml
+export KUBECONFIG=/home/sohamg/.kube/config
 # path+="/home/sohamg/.emacs.d/bin"
 # setxkbmap -option caps:ctrl_modifier,shift:both_capslock
 #Emacs vterm
@@ -129,3 +129,8 @@ mysync() {
 }
 
 alias http="python3 -m http.server 8080 --directory"
+
+if [ -n "${commands[fzf-share]}" ]; then
+  source "$(fzf-share)/key-bindings.zsh"
+  source "$(fzf-share)/completion.zsh"
+fi
