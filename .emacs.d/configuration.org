@@ -13,11 +13,16 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
 	(set-fringe-mode 10) ; Give some breathing room
 	(menu-bar-mode -1) ; Disable the menu bar
 	(line-number-mode 1)
-	(display-line-numbers-mode 1)
-	(setq display-line-numbers 'relative)
+	;; (setq display-line-numbers 'relative)
+	(add-hook 'server-after-make-frame-hook
+						#'(lambda nil
+								(setq display-line-numbers 'relative)
+								(display-line-numbers-mode 1)
+								(global-display-fill-column-indicator-mode 1)
+								(set-face-attribute 'default nil :font "Fira Code"
+																		:height 120 :weight 'light)))
 	;; Set up the visible bell
 	(setq visible-bell t)
-	(set-face-attribute 'default nil :font "Fira Code" :height 120)
 	;; Make ESC quit prompts
 	(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 	;; (global-set-key (kbd "C-x C-b") 'ibuffer)
@@ -36,12 +41,13 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
 	(setq native-comp-async-report-warnings-errors nil)
 
 	;; Set the right directory to store the native comp cache
-	(add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory))
+	(add-to-list 'native-comp-eln-load-path
+							 (expand-file-name "eln-cache/" user-emacs-directory))
 
-	(setq custom-file (expand-file-name "custm.el" user-emacs-directory))
+	(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 	(load custom-file)
 	;; Stop annoying pop up of compile command
-	(add-to-list 'same-window-buffer-names "*compilation*")dd
+	(add-to-list 'same-window-buffer-names "*compilation*")
 #+END_SRC
 * Utility
 #+BEGIN_SRC emacs-lisp
@@ -79,8 +85,9 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
 : t
 
 ** Completions
+Only Ivy is currently enabled.
 **** Vertico
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle nil
      ;; (use-package vertico
      ;;   :init
      ;;   (vertico-mode)
@@ -228,10 +235,6 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
 	(setq consult-narrow-key "<"))
 
     #+END_SRC 
-
-    #+RESULTS:
-    : consult-history
-
 ** Themeing
   #+BEGIN_SRC emacs-lisp
     (use-package doom-modeline :ensure t :init (doom-modeline-mode 1)
@@ -255,16 +258,12 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
 ** Fonts
    #+BEGIN_SRC emacs-lisp
 		 (use-package fira-code-mode
-			 :custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
-			 :hook prog-mode-hook
+			 :hook server-after-make-frame
 			 :config
 			 (global-fira-code-mode 1))
 		 (use-package emojify
 			 :hook (after-init . global-emojify-mode))
 #+END_SRC
-
-#+RESULTS:
-| x-wm-set-size-hint | global-emojify-mode | tramp-register-archive-file-name-handler | magit-maybe-define-global-key-bindings | table--make-cell-map |
 
 ** Misc
 :PROPERTIES:
@@ -345,7 +344,7 @@ Embrace VIM.
 #+RESULTS:
 
 * Email
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle nil
   ;; (use-package mu4e
   ;;   :ensure nil
 
@@ -446,7 +445,6 @@ Embrace VIM.
 	;; (use-package lsp-tailwindcss)
 	(use-package zig-mode)
 	(use-package rust-mode)
-	(setq tree-sitter-load-path "~/.emacs.d/elpa/tree-sitter-langs-20230311.1456/bin")
 #+END_SRC
 
 #+RESULTS:
@@ -480,64 +478,72 @@ Embrace VIM.
 :END:
 ** Config
 #+BEGIN_SRC emacs-lisp
-	  (defun my-just-one-space ()
-	(interactive)
-	(if (org-at-table-p)
-	  (org-table-blank-field)
-	  (just-one-space)))
-	  (use-package org
-	:ensure t
-	:bind (:map org-mode-map ("C-c SPC" . my-just-one-space))
-	:hook org-indent-mode
-	:custom
-	(org-todo-keyword-faces
-	 '(("TODO" . org-warning)
-	   ("IN-PROG" . "green")
-	   ("DONE" . "black")
-	   ("NEXT" . "yellow")
-  ("LIMBO" . "brown")))
-	:config
+	(defun my-just-one-space ()
+		(interactive)
+		(if (org-at-table-p)
+				(org-table-blank-field)
+			(just-one-space)))
 
-	(add-hook 'completion-at-point-functions 'pcomplete-completions-at-point nil t)
-	(add-hook 'org-mode-hook '(lambda ()
-		(setq org-id-link-to-org-use-id t))))
-	  (use-package evil-org
-	:ensure t
-	:after org
-	:hook (org-mode . (lambda () evil-org-mode))
-	:config
-	(require 'evil-org-agenda)
-	(evil-org-agenda-set-keys))
-	  (use-package org-contrib)
-  (use-package ox-rss)
-	  (use-package org-bullets)
-	  (use-package gnuplot :ensure t)
-	  (defun my/auto-call-fill-paragraph-for-org-mode ()
-	"Call two modes to automatically call fill-paragraph for you."
-	(visual-line-mode))
-	  (add-hook 'org-mode-hook 'my/auto-call-fill-paragraph-for-org-mode)
-	  (add-hook 'org-mode-hook 'org-bullets-mode)
-	  (setq org-hide-leading-stars t)
-	  (setq org-startup-with-inline-images t)
-	  (setq  org-log-into-drawer t)
-	  (setq org-log-done 'time)
-	  (setq org-export-backends '(ascii beamer html texinfo latex))
-	  (setq  org-bullets-bullet-list '("◉" "◎" "○" "►" "◇""♠" ))
-	  (use-package writeroom-mode)
-	  (org-babel-do-load-languages
-	   'org-babel-load-languages
-	   '((plantuml . t))) ; this line activates plantuml
-	  (setq org-plantuml-exec-mode 'plantuml)
-	  (add-to-list
-	'org-src-lang-modes '("plantuml" . plantuml))
-	  (defun my-org-confirm-babel-evaluate (lang body)
-	(not (string= lang "plantuml")))
-	  (setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
+	(use-package org
+		:ensure t
+		:bind (:map org-mode-map ("C-c SPC" . my-just-one-space))
+		:hook org-indent-mode
+		:custom
+		(org-todo-keyword-faces
+		 '(("TODO" . org-warning)
+			 ("IN-PROG" . "green")
+			 ("DONE" . "black")
+			 ("NEXT" . "yellow")
+			 ("LIMBO" . "brown")))
+		:config
+
+		(add-hook 'completion-at-point-functions 'pcomplete-completions-at-point nil t)
+		(add-hook 'org-mode-hook '(lambda ()
+																(setq org-id-link-to-org-use-id t))))
+	(use-package evil-org
+		:ensure t
+		:after org
+		:hook (org-mode . (lambda () evil-org-mode))
+		:config
+		(require 'evil-org-agenda)
+		(evil-org-agenda-set-keys))
+	(use-package org-contrib)
+	(use-package ox-rss)
+	(use-package org-bullets)
+	(use-package gnuplot :ensure t)
+	(defun my/auto-call-fill-paragraph-for-org-mode ()
+		"Call two modes to automatically call fill-paragraph for you."
+		(visual-line-mode))
+	(add-hook 'org-mode-hook 'my/auto-call-fill-paragraph-for-org-mode)
+	(add-hook 'org-mode-hook 'org-bullets-mode)
+	(setq org-hide-leading-stars t)
+	(setq org-startup-with-inline-images t)
+	(setq  org-log-into-drawer t)
+	(setq org-log-done 'time)
+	(setq org-export-backends '(ascii beamer html texinfo latex))
+	(setq  org-bullets-bullet-list '("◉" "◎" "○" "►" "◇""♠" ))
+	(use-package writeroom-mode)
+	(org-babel-do-load-languages
+	 'org-babel-load-languages
+	 '((plantuml . t))) ; this line activates plantuml
+	(setq org-plantuml-exec-mode 'plantuml)
+	(add-to-list
+	 'org-src-lang-modes '("plantuml" . plantuml))
+	(defun my-org-confirm-babel-evaluate (lang body)
+		(not (string= lang "plantuml")))
+	(setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
 #+END_SRC
-
-#+RESULTS:
-: my-org-confirm-babel-evaluate
-
+*** ACM Latex Class
+#+BEGIN_SRC emacs-lisp
+	(add-to-list 'org-latex-classes
+							 '("acmart"
+								 "\\documentclass{acmart}"
+								 ("\\section{%s}" . "\\section*{%s}")
+								 ("\\subsection{%s}" . "\\subsection*{%s}")
+								 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+								 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+								 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+#+END_SRC 
 ** Notes and Capture
 :PROPERTIES:
 :ID:       c50d208c-7836-438c-ab40-29b9142a639f
@@ -618,15 +624,105 @@ Embrace VIM.
 : t
 
 ** Org Present
+Test text.
 #+BEGIN_SRC emacs-lisp
-  (use-package org-present)
-  (use-package visual-fill-column
-    :config
-    (setq-default visual-fill-column-center-text t))
+	(use-package org-present)
+	(use-package visual-fill-column
+		:config
+		(setq-default visual-fill-column-center-text t))
+	;; Configure fill width
+	(setq visual-fill-column-width 300
+				visual-fill-column-center-text t)
+
+
+	(setq my/monofont "Fira Code"
+				my/varfont "Monocraft Nerd Font")
+
+	(defun my/org-present-start ()
+		(interactive)
+		;; Center the presentation and wrap lines
+		(visual-fill-column-mode 1)
+		;; Tweak font sizes
+		(variable-pitch-mode 1)
+		(buffer-face-set 'variable-pitch)
+		;; NOTE: These settings might not be ideal for your machine, tweak them as needed!
+		(set-face-attribute 'default nil :font my/monofont :weight 'regular :height 120)
+		(set-face-attribute 'fixed-pitch nil :font my/monofont :weight 'light :height 120)
+		(set-face-attribute 'variable-pitch nil :font my/varfont :weight 'light :height 1.1 )
+
+		(setq face-remapping-alist '((default (:height 1.5) variable-pitch)
+																			 (header-line (:height 4.0) variable-pitch)
+																			 (org-document-title (:height 1.75) org-document-title)
+																			 (org-code (:height 1.55) org-code)
+																			 (org-verbatim (:height 1.55) org-verbatim)
+																			 (org-block (:height 1.25) org-block)
+																			 (org-block-begin-line (:height 0.7) org-block)))
+
+		;; Load org-faces to make sure we can set appropriate faces
+		(require 'org-faces)
+		;; Hide emphasis markers on formatted text
+		(setq-local org-hide-emphasis-markers t)
+
+		;; Resize Org headings
+		(dolist (face '((org-level-1 . 1.2)
+										(org-level-2 . 1.1)
+										(org-level-3 . 1.05)
+										(org-level-4 . 1.0)
+										(org-level-5 . 1.1)
+										(org-level-6 . 1.1)
+										(org-level-7 . 1.1)
+										(org-level-8 . 1.1)))
+			(set-face-attribute (car face) nil :font my/monofont :weight 'bold :height (cdr face)))
+
+		;; ;; Make 
+		;; the document title a bit bigger
+		(set-face-attribute 'org-document-title nil :font my/varfont :weight 'bold :height 1.3)
+
+		;; Make sure certain org faces use the fixed-pitch face when variable-pitch-mode is on
+		(set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+		(set-face-attribute 'org-table nil :inherit 'fixed-pitch)
+		(set-face-attribute 'org-formula nil :inherit 'fixed-pitch)
+		(set-face-attribute 'org-code nil :inherit '(shadow fixed-pitch))
+		(set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+		(set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+		(set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+		(set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+		(visual-line-mode 1))
+	(defun my/org-present-end ()
+		(interactive)
+		;; Stop centering the document
+		(visual-fill-column-mode 0)
+		(setq face-remapping-alist nil)
+		;; Clear the header line string so that it isn't displayed
+		(setq header-line-format nil)
+		(variable-pitch-mode -1)
+		(buffer-face-set 'default)
+		;; Stop displaying inline images
+		(org-remove-inline-images)
+		(visual-line-mode 0))
+
+
+
+	(defun my/org-present-prepare-slide (buffer-name heading)
+		;; Show only top-level headlines
+		(org-overview)
+
+		;; Unfold the current entry
+		(org-show-entry)
+
+		;; Show only direct subheadings of the slide but don't expand them
+		(org-show-children))
+	;; Turn on variable pitch fonts in Org Mode buffers
+	;; (add-hook 'org-present-mode-hook 'variable-pitch-mode)
+
+	;; Register hooks with org-present
+	(add-hook 'org-present-mode-hook 'my/org-present-start)
+	(add-hook 'org-present-mode-quit-hook 'my/org-present-end)
+	(add-hook 'org-present-after-navigate-functions 'my/org-present-prepare-slide)
 #+END_SRC
 
 #+RESULTS:
-: t
+| my/org-present-prepare-slide |
 
 * LaTeX
   #+BEGIN_SRC emacs-lisp
@@ -692,6 +788,7 @@ Quality of life key binds.
 		"ot" '(my/capture-todo :wk "Create TODO")
 		"on" '(my/capture-note :wk "Create Note")
 		"o." '(my/reagenda :wk "Refresh org-agenda-files")
+		"op" '(:ignore t :wk "Org Present")
 		"b" '(:ignore t :wk "Buffers")
 		"bb" 'consult-buffer
 		"SPC" 'clang-format-buffer
@@ -719,6 +816,19 @@ Quality of life key binds.
 
 #+RESULTS:
 
+** Other General Binds
+	#+BEGIN_SRC emacs-lisp
+		(general-define-key
+		 "M-f" 'counsel-find-file
+		 "M-b" 'counsel-buffer-or-recentf)
+		(general-define-key
+		 :prefix "C-c"
+		 :keymaps '(org-mode-map)
+		 "q" 'org-present-quit
+		 "p" 'org-present
+		 "s" 'my/org-present-start
+		 "e" 'my/org-present-end )
+	#+END_SRC
 ** Utility functions
 #+BEGIN_SRC emacs-lisp
 	(defun my/capture-todo ()
@@ -757,3 +867,4 @@ Quality of life key binds.
 	(defun ezrepl-send-line ()
 	  "Send line to current repl."))
     #+END_SRC
+		

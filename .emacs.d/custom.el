@@ -6,15 +6,15 @@
  '(column-number-mode t)
  '(connection-local-criteria-alist
 	 '(((:machine "sohamg.xyz")
-			sohamg.xyz-vars)
+			sohamg\.xyz-vars)
 		 ((:application tramp :protocol "flatpak")
 			tramp-container-connection-local-default-flatpak-profile)
 		 ((:application eshell)
 			eshell-connection-default-profile)
 		 ((:application tramp)
-			tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
+			tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)) t)
  '(connection-local-profile-alist
-	 '((sohamg.xyz-vars
+	 '((sohamg\.xyz-vars
 			(company-gtags--executable-connection))
 		 (tramp-container-connection-local-default-flatpak-profile
 			(tramp-remote-path "/app/bin" tramp-default-remote-path "/bin" "/usr/bin" "/sbin" "/usr/sbin" "/usr/local/bin" "/usr/local/sbin" "/local/bin" "/local/freeware/bin" "/local/gnu/bin" "/usr/freeware/bin" "/usr/pkg/bin" "/usr/contrib/bin" "/opt/bin" "/opt/sbin" "/opt/local/bin"))
@@ -91,12 +91,13 @@
 			(shell-command-switch . "-c"))
 		 (tramp-connection-local-default-system-profile
 			(path-separator . ":")
-			(null-device . "/dev/null"))))
+			(null-device . "/dev/null"))) t)
  '(fsharp-smart-indentation nil)
  '(global-undo-tree-mode t)
  '(global-whitespace-mode t)
  '(global-whitespace-newline-mode nil)
- '(initial-scratch-message "Scratch Bufferino lol\12")
+ '(initial-scratch-message "Scratch Bufferino lol
+")
  '(make-backup-files nil)
  '(org-agenda-custom-commands
 	 '(("n" "Agenda and all TODOs"
@@ -112,7 +113,7 @@
  '(org-agenda-todo-ignore-with-date t)
  '(org-deadline-warning-days 3)
  '(package-selected-packages
-	 '(evil-surround merlin-company editorconfig dune tuareg typescript-mode lsp-mode yasnippet vertico tree-sitter-langs svelte-mode pdf-tools web-mode ox-rss eglot evil company hydra dap-mode consult-eglot eglot-fsharp plantuml-mode fsharp-mode undo-tree slime rainbow-delimiters highlight-indentation zig-mode use-package emmet-mode auto-package-update spinner writeroom-mode nyan-mode which-key envrc org-roam marginalia clang-format org-contrib lsp-ui auctex gnuplot org-bullets emacsql-sqlite3 evil-org frames-only-mode ac-geiser nix-mode yaml-mode orderless dockerfile-mode command-log-mode general fira-code-mode projectile rust-mode yasnippet-snippets evil-nerd-commenter emojify deft counsel smartparens minions notmuch eterm-256color company-box magit geiser-guile consult evil-collection wc-mode org-present evil-paredit lsp-tailwindcss company-shell doom-themes))
+	 '(all-the-icons evil-surround merlin-company editorconfig dune tuareg typescript-mode lsp-mode yasnippet vertico tree-sitter-langs svelte-mode pdf-tools web-mode ox-rss eglot evil company hydra dap-mode consult-eglot eglot-fsharp plantuml-mode fsharp-mode undo-tree slime rainbow-delimiters highlight-indentation zig-mode use-package emmet-mode auto-package-update spinner writeroom-mode nyan-mode which-key envrc org-roam marginalia clang-format org-contrib lsp-ui auctex gnuplot org-bullets emacsql-sqlite3 evil-org frames-only-mode ac-geiser nix-mode yaml-mode orderless dockerfile-mode command-log-mode general fira-code-mode projectile rust-mode yasnippet-snippets evil-nerd-commenter emojify deft counsel smartparens minions notmuch eterm-256color company-box magit geiser-guile consult evil-collection wc-mode org-present evil-paredit lsp-tailwindcss company-shell doom-themes))
  '(sp-show-pair-from-inside t)
  '(tab-width 2)
  '(undo-tree-auto-save-history nil)
@@ -123,4 +124,5 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(bold ((t (:foreground "red" :overline nil :weight bold :height 1.2))))
  '(whitespace-newline ((t (:foreground "#565761" :weight ultra-light :height 0.2)))))
