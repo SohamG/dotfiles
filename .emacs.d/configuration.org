@@ -13,14 +13,22 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
 	(set-fringe-mode 10) ; Give some breathing room
 	(menu-bar-mode -1) ; Disable the menu bar
 	(line-number-mode 1)
-	;; (setq display-line-numbers 'relative)
+
+	(setq my/monofont "Fira Code"
+				my/varfont "Monocraft Nerd Font")
+
+	;; It is important to set some stuff AFTER
+	;; the first frame has been made.
+	;; These settings dont work in the server context.
 	(add-hook 'server-after-make-frame-hook
 						#'(lambda nil
-								(setq display-line-numbers 'relative)
 								(display-line-numbers-mode 1)
+								(setq display-line-numbers 'relative)
 								(global-display-fill-column-indicator-mode 1)
 								(set-face-attribute 'default nil :font "Fira Code"
-																		:height 120 :weight 'light)))
+																		:height 120 :weight 'regular)
+								(set-face-attribute 'variable-pitch nil :font my/varfont 
+																		:height 120)))
 	;; Set up the visible bell
 	(setq visible-bell t)
 	;; Make ESC quit prompts
@@ -472,6 +480,26 @@ Embrace VIM.
 	;; ## end of OPAM user-setup addition for emacs / base ## keep this line
 
 #+END_SRC
+** Go
+#+BEGIN_SRC emacs-lisp
+	;; https://github.com/golang/tools/blob/master/gopls/doc/emacs.md
+	;; This is quite arcane...
+	(defun project-find-go-module (dir)
+		(when-let ((root (locate-dominating-file dir "go.mod")))
+			(cons 'go-module root)))
+
+	(cl-defmethod project-root ((project (head go-module)))
+		(cdr project))
+	(defun eglot-format-buffer-on-save ()
+		(add-hook 'before-save-hook #'eglot-format-buffer -10 t))
+	(use-package go-mode
+		:mode "\\.go\\'"
+		:config
+		(add-hook 'project-find-functions #'project-find-go-module)
+		(add-hook 'go-mode-hook 'eglot-ensure)
+		(add-hook 'go-mode-hook #'eglot-format-buffer-on-save))
+
+#+END_SRC
 * Org
 :PROPERTIES:
 :ID:       7186d384-961c-45a1-99e7-7651f07084ac
@@ -549,28 +577,29 @@ Embrace VIM.
 :ID:       c50d208c-7836-438c-ab40-29b9142a639f
 :END:
 #+BEGIN_SRC emacs-lisp
-  (defun my/agenda ()
-    (interactive)
-    (append (directory-files-recursively org-directory "\\todo\.org$") '("main.org")))
-  (setq org-directory "/mnt/nextcloud/Notes"
-	org-default-notes-file (concat org-directory "/main.org")
-	org-capture-templates
-	'(("n" "Note" entry (file+headline org-default-notes-file "Master Notes")
-	   "* %^{TITLE|untitled} %^g %i\n %T \n %?\n")
-	  ("t" "Todo" entry (file org-default-notes-file)
-	   "* TODO %^{TITLE|untitled} %^g %i\n %T \n %?\n" :tree-type month))
-	org-todo-keywords
-	'((sequence "TODO(t)" "NEXT(n)" "IN-PROG(i)" "|" "DONE(d)" "WONT-DO(w@)" "LIMBO(l)"))
-	org-id-link-to-org-use-id t
-	org-refile-targets '((nil :maxlevel . 3))
-	org-agenda-files (list org-default-notes-file))
-  (defun my/make-note ()
-    (interactive)
-    (find-file org-directory))
-#+END_SRC
+	(defun my/agenda ()
+		(interactive)
+		(append (directory-files-recursively org-directory "\\todo\.org$") '("main.org")))
 
-#+RESULTS:
-: my/reagenda
+	(setq org-directory "/mnt/nextcloud/Notes"
+				org-default-notes-file (concat org-directory "/main.org")
+				org-capture-templates
+				'(("n" "Note" entry (file+headline org-default-notes-file "Master Notes")
+					 "* %^{TITLE|untitled} %^g %i\n %T \n %?\n")
+					("t" "Todo" entry (file org-default-notes-file)
+					 "* TODO %^{TITLE|untitled} %^g %i\n %T \n %?\n" :tree-type month))
+				org-todo-keywords
+				'((sequence "TODO(t)" "NEXT(n)" "IN-PROG(i)" "|" "DONE(d)" "WONT-DO(w@)" "LIMBO(l)"))
+				org-id-link-to-org-use-id t
+				org-refile-targets '((nil :maxlevel . 3))
+				org-agenda-files (list org-default-notes-file))
+	(defun my/make-note ()
+		(interactive)
+		(find-file org-directory))
+
+	(setq org-tags-alist
+				'(("lug" . "l")))
+#+END_SRC
 
 *** Deft
 :PROPERTIES:
@@ -634,9 +663,6 @@ Test text.
 	(setq visual-fill-column-width 300
 				visual-fill-column-center-text t)
 
-
-	(setq my/monofont "Fira Code"
-				my/varfont "Monocraft Nerd Font")
 
 	(defun my/org-present-start ()
 		(interactive)

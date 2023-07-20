@@ -92,6 +92,7 @@
 		 (tramp-connection-local-default-system-profile
 			(path-separator . ":")
 			(null-device . "/dev/null"))) t)
+ '(display-line-numbers 'relative)
  '(fsharp-smart-indentation nil)
  '(global-undo-tree-mode t)
  '(global-whitespace-mode t)
@@ -113,7 +114,7 @@
  '(org-agenda-todo-ignore-with-date t)
  '(org-deadline-warning-days 3)
  '(package-selected-packages
-	 '(all-the-icons evil-surround merlin-company editorconfig dune tuareg typescript-mode lsp-mode yasnippet vertico tree-sitter-langs svelte-mode pdf-tools web-mode ox-rss eglot evil company hydra dap-mode consult-eglot eglot-fsharp plantuml-mode fsharp-mode undo-tree slime rainbow-delimiters highlight-indentation zig-mode use-package emmet-mode auto-package-update spinner writeroom-mode nyan-mode which-key envrc org-roam marginalia clang-format org-contrib lsp-ui auctex gnuplot org-bullets emacsql-sqlite3 evil-org frames-only-mode ac-geiser nix-mode yaml-mode orderless dockerfile-mode command-log-mode general fira-code-mode projectile rust-mode yasnippet-snippets evil-nerd-commenter emojify deft counsel smartparens minions notmuch eterm-256color company-box magit geiser-guile consult evil-collection wc-mode org-present evil-paredit lsp-tailwindcss company-shell doom-themes))
+	 '(go-mode all-the-icons evil-surround merlin-company editorconfig dune tuareg typescript-mode lsp-mode yasnippet vertico tree-sitter-langs svelte-mode pdf-tools web-mode ox-rss eglot evil company hydra dap-mode consult-eglot eglot-fsharp plantuml-mode fsharp-mode undo-tree slime rainbow-delimiters highlight-indentation zig-mode use-package emmet-mode auto-package-update spinner writeroom-mode nyan-mode which-key envrc org-roam marginalia clang-format org-contrib lsp-ui auctex gnuplot org-bullets emacsql-sqlite3 evil-org frames-only-mode ac-geiser nix-mode yaml-mode orderless dockerfile-mode command-log-mode general fira-code-mode projectile rust-mode yasnippet-snippets evil-nerd-commenter emojify deft counsel smartparens minions notmuch eterm-256color company-box magit geiser-guile consult evil-collection wc-mode org-present evil-paredit lsp-tailwindcss company-shell doom-themes))
  '(sp-show-pair-from-inside t)
  '(tab-width 2)
  '(undo-tree-auto-save-history nil)
