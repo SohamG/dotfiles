@@ -500,6 +500,10 @@ Embrace VIM.
 		(add-hook 'go-mode-hook #'eglot-format-buffer-on-save))
 
 #+END_SRC
+** Haskell
+#+BEGIN_SRC emacs-lisp
+	(use-package haskell-mode)
+#+END_SRC
 * Org
 :PROPERTIES:
 :ID:       7186d384-961c-45a1-99e7-7651f07084ac
@@ -606,15 +610,16 @@ Embrace VIM.
 :ID:       38b33334-cd2b-4b51-b598-4023328951b7
 :END:
 #+BEGIN_SRC emacs-lisp
-  (use-package deft
-    :config
-    (setq deft-directory "/mnt/nextcloud/Notes"
-	  deft-extensions '("org")
-	  deft-recursive t
-	  deft-use-filename-as-title nil)
-    :bind
-    ("<f8>" . deft))
-    
+	(use-package deft
+		:config
+		(setq deft-directory "/mnt/nextcloud/Notes"
+		deft-extensions '("org")
+		deft-recursive t
+		deft-use-filename-as-title t
+		deft-default-extension "org")
+		:bind
+		("<f8>" . deft))
+
 #+END_SRC
 
 #+RESULTS:
@@ -660,7 +665,7 @@ Test text.
 		:config
 		(setq-default visual-fill-column-center-text t))
 	;; Configure fill width
-	(setq visual-fill-column-width 300
+	(setq visual-fill-column-width 600
 				visual-fill-column-center-text t)
 
 
@@ -724,6 +729,9 @@ Test text.
 		(variable-pitch-mode -1)
 		(buffer-face-set 'default)
 		;; Stop displaying inline images
+
+								(set-face-attribute 'default nil :font "Fira Code"
+																		:height 120 :weight 'regular)
 		(org-remove-inline-images)
 		(visual-line-mode 0))
 
@@ -752,11 +760,12 @@ Test text.
 
 * LaTeX
   #+BEGIN_SRC emacs-lisp
-    (use-package tex
-      :ensure auctex
-      :config 	
-      (setq TeX-auto-save t)
-      (setq TeX-parse-self t))
+		(use-package tex
+			:ensure auctex
+			:config 	
+			(setq TeX-auto-save t)
+			(setq TeX-parse-self t))
+		(use-package pdf-tools)
   #+END_SRC
 
   #+RESULTS:
