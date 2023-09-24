@@ -57,6 +57,10 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
 	;; Stop annoying pop up of compile command
 	(add-to-list 'same-window-buffer-names "*compilation*")
 #+END_SRC
+
+#+RESULTS:
+| *compilation* |
+
 * Utility
 #+BEGIN_SRC emacs-lisp
   (defun sg/edit-file (file)
@@ -661,21 +665,16 @@ Embrace VIM.
 Test text.
 #+BEGIN_SRC emacs-lisp
 	(use-package org-present)
-	(use-package visual-fill-column
-		:config
-		(setq-default visual-fill-column-center-text t))
-	;; Configure fill width
-	(setq visual-fill-column-width 600
-				visual-fill-column-center-text t)
-
 
 	(defun my/org-present-start ()
 		(interactive)
 		;; Center the presentation and wrap lines
+		(setq visual-fill-column-width 800)
 		(visual-fill-column-mode 1)
 		;; Tweak font sizes
 		(variable-pitch-mode 1)
 		(buffer-face-set 'variable-pitch)
+		(setq writeroom-width 800)
 		;; NOTE: These settings might not be ideal for your machine, tweak them as needed!
 		(set-face-attribute 'default nil :font my/monofont :weight 'regular :height 120)
 		(set-face-attribute 'fixed-pitch nil :font my/monofont :weight 'light :height 120)
