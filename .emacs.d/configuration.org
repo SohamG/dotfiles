@@ -3,65 +3,73 @@
 #+PROPERTY: header-args:emacs-lisp :tangle init.el
 
 * Startup
+:PROPERTIES:
+:ID:       f17ee97f-febc-4774-acd2-db09c81b5ab8
+:END:
 This region is some basic/sanity check settings.
 Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
 #+BEGIN_SRC emacs-lisp
-	(setq inhibit-startup-message t)
-	(scroll-bar-mode -1) ; Disable visible scrollbar
-	(tool-bar-mode -1) ;
-	(tooltip-mode -1) ; Disable tooltips
-	(set-fringe-mode 10) ; Give some breathing room
-	(menu-bar-mode -1) ; Disable the menu bar
-	(line-number-mode 1)
+  (setq inhibit-startup-message t)
+  (scroll-bar-mode -1) ; Disable visible scrollbar
+  (tool-bar-mode -1) ;
+  (tooltip-mode -1) ; Disable tooltips
+  (set-fringe-mode 10) ; Give some breathing room
+  (menu-bar-mode -1) ; Disable the menu bar
+  (line-number-mode 1)
 
-	(setq my/monofont "Fira Code"
-				my/varfont "Monocraft Nerd Font")
+  (setq my/monofont "Fira Code"
+			  my/varfont "Monocraft Nerd Font")
 
-	;; It is important to set some stuff AFTER
-	;; the first frame has been made.
-	;; These settings dont work in the server context.
-	(add-hook 'server-after-make-frame-hook
-						#'(lambda nil
-								(display-line-numbers-mode 1)
-								(setq display-line-numbers 'relative)
-								(global-display-fill-column-indicator-mode 1)
-								(set-face-attribute 'default nil :font "Fira Code"
-																		:height 120 :weight 'regular)
-								(set-face-attribute 'variable-pitch nil :font my/varfont 
-																		:height 120)))
-	;; Set up the visible bell
-	(setq visible-bell t)
-	;; Make ESC quit prompts
-	(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-	;; (global-set-key (kbd "C-x C-b") 'ibuffer)
-	(savehist-mode 1)
-	(setq use-dialog-box nil)
-	(global-auto-revert-mode 1)
-	(setq user-mail-address "sgumas2@uic.edu")
-	;; (setq lsp-prefer-flymake nil)
-	(auto-save-visited-mode t)
-	(setq make-backup-files nil)
-	(setq help-window-select t)
-	(setq-default scheme-program-name "guile")
-	(tab-bar-mode 1)
-	(transient-mark-mode -1)
-	;; Silence compiler warnings as they can be pretty disruptive
-	(setq native-comp-async-report-warnings-errors nil)
+  ;; It is important to set some stuff AFTER
+  ;; the first frame has been made.
+  ;; These settings dont work in the server context.
+  (add-hook 'server-after-make-frame-hook
+					  #'(lambda nil
+							  (display-line-numbers-mode 1)
+							  (setq display-line-numbers 'relative)
+							  (global-display-fill-column-indicator-mode 1)
+							  (set-face-attribute 'default nil :font "Fira Code"
+																	  :height 120 :weight 'regular)
+							  (set-face-attribute 'variable-pitch nil :font my/varfont 
+																	  :height 120)))
+  ;; Set up the visible bell
+  (setq visible-bell t)
+  ;; Make ESC quit prompts
+  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+  ;; (global-set-key (kbd "C-x C-b") 'ibuffer)
+  (savehist-mode 1)
+  (setq use-dialog-box nil)
+  (global-auto-revert-mode 1)
+  (setq user-mail-address "sgumas2@uic.edu")
+  ;; (setq lsp-prefer-flymake nil)
+  (auto-save-visited-mode t)
+  (setq make-backup-files nil)
+  (setq help-window-select t)
+  (setq-default scheme-program-name "guile")
+  (tab-bar-mode 1)
+  (transient-mark-mode -1)
+  ;; Silence compiler warnings as they can be pretty disruptive
+  (setq native-comp-async-report-warnings-errors nil)
 
-	;; Set the right directory to store the native comp cache
-	(add-to-list 'native-comp-eln-load-path
-							 (expand-file-name "eln-cache/" user-emacs-directory))
+  ;; Set the right directory to store the native comp cache
+  (add-to-list 'native-comp-eln-load-path
+						   (expand-file-name "eln-cache/" user-emacs-directory))
 
-	(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-	(load custom-file)
-	;; Stop annoying pop up of compile command
-	(add-to-list 'same-window-buffer-names "*compilation*")
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (load custom-file)
+  ;; Stop annoying pop up of compile command
+  (add-to-list 'same-window-buffer-names "*compilation*")
+
+  (setq-default indent-tabs-mode nil)
 #+END_SRC
 
 #+RESULTS:
 | *compilation* |
 
 * Utility
+:PROPERTIES:
+:ID:       69251664-6dc5-4f2f-8e76-664eafc23b63
+:END:
 #+BEGIN_SRC emacs-lisp
   (defun sg/edit-file (file)
     "Function that opens the @file for editing"
@@ -71,12 +79,15 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
 
 * Package Management
 ** Setup package management.
-#+BEGIN_SRC emacs-lisp
+:PROPERTIES:
+:ID:       75632330-7091-4080-9c71-cbf7b137c1d3
+:END:
+#+BEGIN_SRC emacs-lisp :tangle nil
   ;; Initialize package sources
   (require 'package)
   (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			   ("elpa" . "https://elpa.gnu.org/packages/")
-			   ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+               ("elpa" . "https://elpa.gnu.org/packages/")
+               ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
   (package-initialize)
   (unless package-archive-contents
     (package-refresh-contents))
@@ -91,7 +102,31 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
     (setq auto-package-update-delete-old-versions t)
     (setq auto-package-update-hide-results t)
     (auto-package-update-maybe))
+  (use-package quelpa)
 #+END_SRC
+
+#+RESULTS:
+: t
+** Straight
+:PROPERTIES:
+:ID:       cef63205-4ff8-4af7-9a5f-062ba8a1e256
+:END:
+#+begin_src emacs-lisp
+  (setq straight-use-package-by-default t)
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+        (bootstrap-version 6))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+  (straight-use-package 'use-package)
+#+end_src
 
 #+RESULTS:
 : t
@@ -99,6 +134,9 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
 ** Completions
 Only Ivy is currently enabled.
 **** Vertico
+:PROPERTIES:
+:ID:       d269a750-5cdf-40c5-ba88-23cf5444f980
+:END:
    #+BEGIN_SRC emacs-lisp :tangle nil
      ;; (use-package vertico
      ;;   :init
@@ -126,39 +164,39 @@ Only Ivy is currently enabled.
      ;;   :custom
      ;;   (completion-styles '(orderless basic))
      ;;   (completion-category-overrides '((file (styles basic partial-completion)))))
-     ;; (use-package yasnippet
-     ;;   :config
-     ;;   (yas-global-mode 1)
-     ;;   (setq yas-snippet-dirs '("~/.config/emacs/snippets")))
-     ;; (use-package yasnippet-snippets
-     ;;   :after yasnippet)
 #+END_SRC
 
 #+RESULTS:
 **** Ivy
+:PROPERTIES:
+:ID:       d914dc6b-b55b-4001-b145-a54cc08bb325
+:END:
     #+BEGIN_SRC emacs-lisp
-			(use-package ivy
-				:config
-				(ivy-mode)
-				:bind
-				(:map ivy-mode-map
-							("C-j" . 'ivy-next-line)
-							("C-k" . 'ivy-previous-line)
-							("C-<return>" . 'ivy-immediate-done)))
+      (use-package ivy
+        :config
+        (ivy-mode)
+        (advice-add #'counsel-M-x
+                    :after #'(lambda ()
+                               (setq last-counsel-M-x-command
+                                     (caar command-history))))
+        :bind
+        (:map ivy-mode-map
+      		("C-j" . 'ivy-next-line)
+      		("C-k" . 'ivy-previous-line)
+      		("C-<return>" . 'ivy-immediate-done)))
 
-			(use-package counsel
-				:after ivy
-				:config
-				(counsel-mode))
-			(use-package swiper
-				:after ivy)
-			;; Remember the last used command
-			(defun sg/counsel-advice ()
-				(setq last-counsel-M-x-command (caar command-history)))
-
-			(advice-add #'counsel-M-x :after #'sg/counsel-advice)
+      (use-package counsel
+        :after ivy
+        :config
+        (counsel-mode))
+      (use-package swiper
+        :after ivy)
+      ;; Remember the last used command
     #+END_SRC
 **** Consult
+:PROPERTIES:
+:ID:       e808d9bd-bf25-4939-bd9e-17c78a212e49
+:END:
     #+BEGIN_SRC emacs-lisp :tangle nil
       ;; Example configuration for Consult
       (use-package consult
@@ -247,7 +285,26 @@ Only Ivy is currently enabled.
 	(setq consult-narrow-key "<"))
 
     #+END_SRC 
+**** Snippets
+:PROPERTIES:
+:ID:       3207fa30-f8a8-4ea6-a83b-47ba5a06c160
+:END:
+#+BEGIN_SRC emacs-lisp
+	(use-package yasnippet
+		:config
+		(yas-global-mode 1)
+		(setq yas-snippet-dirs '("~/.emacs.d/snippets")))
+
+	;; (use-package yasnippet-snippets
+	;; 	:after yasnippet)
+#+END_SRC
+
+#+RESULTS:
+
 ** Themeing
+:PROPERTIES:
+:ID:       7297f5da-5f2b-4f30-aad2-d628d0ac380e
+:END:
   #+BEGIN_SRC emacs-lisp
     (use-package doom-modeline :ensure t :init (doom-modeline-mode 1)
       :custom ((doom-modeline-height 15)))
@@ -268,13 +325,15 @@ Only Ivy is currently enabled.
 #+RESULTS:
 
 ** Fonts
+:PROPERTIES:
+:ID:       84e0acd1-f58d-4d8f-833b-7f9fe189bdec
+:END:
    #+BEGIN_SRC emacs-lisp
 		 (use-package fira-code-mode
 			 :hook server-after-make-frame
 			 :config
 			 (global-fira-code-mode 1))
-		 (use-package emojify
-			 :hook (after-init . global-emojify-mode))
+		 (use-package emojify)
 #+END_SRC
 
 ** Misc
@@ -298,19 +357,19 @@ Only Ivy is currently enabled.
      (use-package vterm
        :load-path "~/.local/share/emacs-libvterm"
        :commands vterm)
-     (use-package company
-       :config
-       (global-company-mode 1)
-       (setq company-idle-delay 0.2
-	     company-minimum-prefix-length 2)
-       :bind
-       (("M-TAB" . company-complete)))
-     (use-package company-box
-       :hook (company-mode . company-box-mode))
-     (use-package company-shell
-       :after company
-       :config
-       (add-to-list 'company-backends 'company-shell))
+     ;; (use-package company
+     ;;   :config
+     ;;   (global-company-mode 1)
+     ;;   (setq company-idle-delay 0.2
+     ;;     company-minimum-prefix-length 2)
+     ;;   :bind
+     ;;   (("M-TAB" . company-complete)))
+     ;; (use-package company-box
+     ;;   :hook (company-mode . company-box-mode))
+     ;; (use-package company-shell
+     ;;   :after company
+     ;;   :config
+     ;;   (add-to-list 'company-backends 'company-shell))
      (use-package plantuml-mode
        :config
        (setq plantuml-default-exec-mode 'executable))
@@ -327,7 +386,44 @@ Only Ivy is currently enabled.
 #+RESULTS:
 : t
 
+** Corfu (Company alt.)
+:PROPERTIES:
+:ID:       4bd4e2bc-9063-4a32-848f-1e6bb8b23468
+:END:
+#+begin_src emacs-lisp
+  (use-package corfu
+    :custom
+    (corfu-auto t)
+    :bind
+    (:map corfu-map
+          ("RET" . nil))
+    :init
+    (global-corfu-mode))
+
+  (use-package emacs
+    :init
+    (setq tab-always-indent 'complete))
+
+  (use-package cape
+    :init
+    (add-to-list 'completion-at-point-functions #'cape-file)
+    (add-to-list 'completion-at-point-functions #'cape-keyword)
+    (add-to-list 'completion-at-point-functions #'cape-dabbrev))
+
+  ;; Use Dabbrev with Corfu!
+  (use-package dabbrev
+    ;; Swap M-/ and C-M-/
+    :bind (("M-/" . dabbrev-completion)
+           ("C-M-/" . dabbrev-expand))
+    ;; Other useful Dabbrev configurations.
+    :custom
+    (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
+#+end_src
+
 * Evil
+:PROPERTIES:
+:ID:       4224925b-76f3-435b-b48b-601f2ac6cbbb
+:END:
 Embrace VIM.
 #+BEGIN_SRC emacs-lisp
 	(use-package evil
@@ -356,6 +452,9 @@ Embrace VIM.
 #+RESULTS:
 
 * Email
+:PROPERTIES:
+:ID:       0720941f-b2f6-4d38-a003-3202e2d2100c
+:END:
 #+BEGIN_SRC emacs-lisp :tangle nil
   ;; (use-package mu4e
   ;;   :ensure nil
@@ -383,6 +482,9 @@ Embrace VIM.
 #+RESULTS:
 
 * LSP IntelliSense
+:PROPERTIES:
+:ID:       18e60904-6928-4c0c-9edb-a324edaf237f
+:END:
 #+BEGIN_SRC emacs-lisp
 	;; (use-package lsp-mode
 	;;   :commands lsp
@@ -396,7 +498,6 @@ Embrace VIM.
 		(setq inferior-fsharp-program "dotnet fsi --readline-"))
 	(use-package consult-eglot)
 	(use-package projectile
-		:ensure t
 		:init
 		(projectile-mode +1)
 		:bind (:map projectile-mode-map))
@@ -412,7 +513,6 @@ Embrace VIM.
 		:hook
 		(prog-mode . rainbow-delimiters-mode))
 	(use-package smartparens
-		:ensure t
 		:config
 		(setq sp-show-pair-from-inside nil)
 		(require 'smartparens-config)
@@ -462,6 +562,9 @@ Embrace VIM.
 #+RESULTS:
 
 ** Scheme
+:PROPERTIES:
+:ID:       5f4c8941-788e-44d1-9d9e-96a54253b6e2
+:END:
 #+BEGIN_SRC emacs-lisp
       (use-package geiser-guile
         :mode
@@ -472,10 +575,16 @@ Embrace VIM.
 #+RESULTS:
 
 ** F#
+:PROPERTIES:
+:ID:       a8a9149c-9c3a-4aa4-9208-08e8900c1ece
+:END:
 #+BEGIN_SRC emacs-lisp
   (use-package fsharp-mode)
 #+END_SRC
 ** OCaml
+:PROPERTIES:
+:ID:       5ed889b4-69e5-411d-b978-640d672f045f
+:END:
 #+BEGIN_SRC emacs-lisp
 	(use-package tuareg)
 	(setq opam-command "opam")
@@ -485,6 +594,9 @@ Embrace VIM.
 
 #+END_SRC
 ** Go
+:PROPERTIES:
+:ID:       7b990b2c-0046-49b0-8163-865f5d32643d
+:END:
 #+BEGIN_SRC emacs-lisp
 	;; https://github.com/golang/tools/blob/master/gopls/doc/emacs.md
 	;; This is quite arcane...
@@ -505,14 +617,48 @@ Embrace VIM.
 
 #+END_SRC
 ** Haskell
+:PROPERTIES:
+:ID:       5d3adbfe-d122-4255-9bec-6e87c248d576
+:END:
 #+BEGIN_SRC emacs-lisp
 	(use-package haskell-mode)
 #+END_SRC
+** Java
+:PROPERTIES:
+:ID:       472fc405-334a-4815-b000-e0b9e02e16d1
+:END:
+#+BEGIN_SRC emacs-lisp
+	(use-package eglot-java)
+	(add-hook 'java-mode-hook 'eglot-java-mode)
+	(add-hook 'eglot-java-mode-hook (lambda ()                                        
+		(define-key eglot-java-mode-map (kbd "C-c l n") #'eglot-java-file-new)
+		(define-key eglot-java-mode-map (kbd "C-c l x") #'eglot-java-run-main)
+		(define-key eglot-java-mode-map (kbd "C-c l t") #'eglot-java-run-test)
+		(define-key eglot-java-mode-map (kbd "C-c l N") #'eglot-java-project-new)
+		(define-key eglot-java-mode-map (kbd "C-c l T") #'eglot-java-project-build-task)
+		(define-key eglot-java-mode-map (kbd "C-c l R") #'eglot-java-project-build-refresh)))
+#+END_SRC
+** Vagrant/P4
+:PROPERTIES:
+:ID:       5f4f523f-5651-406e-9d25-7539e365029d
+:END:
+#+begin_src emacs-lisp :tangle yes
+  (use-package vagrant-tramp)
+  (use-package xcscope)
+  (add-to-list 'load-path (concat user-emacs-directory "p4-mode"))
+  ;; https://raw.githubusercontent.com/p4lang/tutorials/master/vm/p4_16-mode.el
+  (use-package p4_16-mode
+    :ensure nil
+    :mode "\\.p4\\'")
+#+end_src
 * Org
 :PROPERTIES:
 :ID:       7186d384-961c-45a1-99e7-7651f07084ac
 :END:
 ** Config
+:PROPERTIES:
+:ID:       257c9a78-6201-4824-8a0d-29edf823dacc
+:END:
 #+BEGIN_SRC emacs-lisp
 	(defun my-just-one-space ()
 		(interactive)
@@ -521,7 +667,6 @@ Embrace VIM.
 			(just-one-space)))
 
 	(use-package org
-		:ensure t
 		:bind (:map org-mode-map ("C-c SPC" . my-just-one-space))
 		:hook org-indent-mode
 		:custom
@@ -537,7 +682,6 @@ Embrace VIM.
 		(add-hook 'org-mode-hook '(lambda ()
 																(setq org-id-link-to-org-use-id t))))
 	(use-package evil-org
-		:ensure t
 		:after org
 		:hook (org-mode . (lambda () evil-org-mode))
 		:config
@@ -546,7 +690,7 @@ Embrace VIM.
 	(use-package org-contrib)
 	(use-package ox-rss)
 	(use-package org-bullets)
-	(use-package gnuplot :ensure t)
+	(use-package gnuplot )
 	(defun my/auto-call-fill-paragraph-for-org-mode ()
 		"Call two modes to automatically call fill-paragraph for you."
 		(visual-line-mode))
@@ -570,6 +714,9 @@ Embrace VIM.
 	(setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
 #+END_SRC
 *** ACM Latex Class
+:PROPERTIES:
+:ID:       488bf3d4-3dee-40ed-9e46-03bd6fc27921
+:END:
 #+BEGIN_SRC emacs-lisp
 	(add-to-list 'org-latex-classes
 							 '("acmart"
@@ -630,6 +777,9 @@ Embrace VIM.
 : deft
 
 ** Use Org-Roam - Note taking/mind mapping system
+:PROPERTIES:
+:ID:       6cbd5374-a7fa-4a89-ad08-0a182e574a0a
+:END:
 #+BEGIN_SRC emacs-lisp :tangle nil
   (use-package emacsql-sqlite3)
   (use-package org-roam
@@ -662,6 +812,9 @@ Embrace VIM.
 : t
 
 ** Org Present
+:PROPERTIES:
+:ID:       278eeb02-1753-4938-a08c-cd21f44010c6
+:END:
 Test text.
 #+BEGIN_SRC emacs-lisp
 	(use-package org-present)
@@ -758,12 +911,14 @@ Test text.
 | my/org-present-prepare-slide |
 
 * LaTeX
+:PROPERTIES:
+:ID:       d448f07c-4fbb-40b8-b456-3c34231231a5
+:END:
   #+BEGIN_SRC emacs-lisp
-		(use-package tex
-			:ensure auctex
+		;;(use-package auctex
 			:config 	
-			(setq TeX-auto-save t)
-			(setq TeX-parse-self t))
+			;;(setq TeX-auto-save t)
+			;;(setq TeX-parse-self t))
 		(use-package pdf-tools)
   #+END_SRC
 
@@ -776,6 +931,9 @@ Test text.
 :END:
 Quality of life key binds.
 ** Setup General
+:PROPERTIES:
+:ID:       a9708d7d-729a-4bb6-a20d-86542a01810a
+:END:
 #+BEGIN_SRC emacs-lisp
 	(use-package general
 		:config
@@ -784,6 +942,9 @@ Quality of life key binds.
 #+END_SRC
 
 ** General leader map
+:PROPERTIES:
+:ID:       c10977c6-2fce-40c0-bceb-13710027ba80
+:END:
 #+BEGIN_SRC emacs-lisp
 	(sg/leader-bind
 		:keymaps '(normal emacs visual)
@@ -834,7 +995,10 @@ Quality of life key binds.
 		"rp" 'point-to-register
 		"ry" 'counsel-yank-pop
 		"rm" 'counsel-mark-ring
-		"C" 'compile)
+		"C" 'compile
+		"e" '(:ignore t :wk "Eglot")
+		"ea" 'eglot-code-actions
+		"ef" 'eglot-format-buffer)
 			;;; I guess dap-mode is really just better...
 	;; (defhydra hydra-debug (global-map "<f2>")
 	;;   "Make Emacs GDB less annoying"
@@ -851,6 +1015,9 @@ Quality of life key binds.
 #+RESULTS:
 
 ** Other General Binds
+:PROPERTIES:
+:ID:       02f11a09-e7fd-4f1c-aa4e-3a92d5b3fa17
+:END:
 	#+BEGIN_SRC emacs-lisp
 		(general-define-key
 		 "M-f" 'counsel-find-file
@@ -864,6 +1031,9 @@ Quality of life key binds.
 		 "e" 'my/org-present-end )
 	#+END_SRC
 ** Utility functions
+:PROPERTIES:
+:ID:       a3f62c22-2f29-401b-90c9-f13e1940b3e8
+:END:
 #+BEGIN_SRC emacs-lisp
 	(defun my/capture-todo ()
 		(interactive)
@@ -887,6 +1057,9 @@ Quality of life key binds.
 			(insert-file-contents "~/.config/emacs/mu4ehelp.org")))
 #+END_SRC
 * EZRepl - Minor Mode
+:PROPERTIES:
+:ID:       fecf13ef-2b23-4680-9ba6-2a304b698495
+:END:
     #+BEGIN_SRC emacs-lisp :tangle nil
       (define-minor-mode ezrepl-mode
 	"Simple minor mode for running any interactive command as a repl"
