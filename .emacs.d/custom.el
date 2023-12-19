@@ -120,7 +120,10 @@
      (tramp-connection-local-default-system-profile
       (path-separator . ":") (null-device . "/dev/null"))))
  '(display-line-numbers 'relative)
+ '(epg-pinentry-mode 'loopback)
  '(fsharp-smart-indentation nil)
+ '(geiser-racket-binary
+   "/nix/store/5mjkn702qn4ij16awlchndkibjn0kdb9-racket-8.9/bin/racket")
  '(global-undo-tree-mode t)
  '(global-whitespace-mode t)
  '(global-whitespace-newline-mode nil)
