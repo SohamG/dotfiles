@@ -25,15 +25,15 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
   ;; It is important to set some stuff AFTER
   ;; the first frame has been made.
   ;; These settings dont work in the server context.
-  ;; (add-hook 'server-after-make-frame-hook
-  ;;   				  #'(lambda nil
-  ;;   						  (display-line-numbers-mode 1)
-  ;;   						  (setq display-line-numbers 'relative)
-  ;;   						  (global-display-fill-column-indicator-mode 1)
-  ;;   						  (set-face-attribute 'default nil :font "Fira Code"
-  ;;   																  :height 120 :weight 'regular)
-  ;;   						  (set-face-attribute 'variable-pitch nil :font my/varfont 
-  ;;   																  :height 120)))
+  (add-hook 'server-after-make-frame-hook
+    				  #'(lambda nil
+    						  (display-line-numbers-mode 1)
+    						  (setq display-line-numbers 'relative)
+    						  (global-display-fill-column-indicator-mode 1)
+    						  (set-face-attribute 'default nil :font "Fira Code"
+    																  :height 120 :weight 'regular)
+    						  (set-face-attribute 'variable-pitch nil :font my/varfont 
+    																  :height 120)))
   ;; Set up the visible bell
   (setq visible-bell t)
   ;; Make ESC quit prompts

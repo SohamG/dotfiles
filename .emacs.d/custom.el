@@ -192,6 +192,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(default ((t (:inherit nil :extend nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight regular :height 120 :width normal :foundry "CTDB" :family "Fira Code"))))
  '(bold ((t (:foreground "red" :overline nil :weight bold :height 1.2))))
  '(italic ((t (:underline t :slant oblique :weight normal :height 1.3 :width extra-expanded :family "default"))))
  '(org-verbatim ((t (:foreground "#50fa7b" :height 1.3))))
