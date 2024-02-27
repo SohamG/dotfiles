@@ -134,3 +134,20 @@ if [ -n "${commands[fzf-share]}" ]; then
   source "$(fzf-share)/key-bindings.zsh"
   source "$(fzf-share)/completion.zsh"
 fi
+
+fcd() {
+    if [ -z $1 ]; then
+        echo "Usage: $0 path"
+    else
+        cd $1/$(ls $1 | fzf)
+    fi
+}
+
+take() {
+    if [ ! -z $1 ]; then
+        mkdir -p $1 && cd $1
+    fi
+}
+cleantex() {
+    rm -rf *.aux *.log *.fls 
+}

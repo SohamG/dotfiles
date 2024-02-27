@@ -65,6 +65,8 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
   (setq-default indent-tabs-mode nil)
 
   (setq epa-pinentry-mode 'loopback)
+
+  (global-unset-key (kbd "C-c C-b"))
 #+END_SRC
 
 #+RESULTS:
@@ -535,80 +537,90 @@ Gave up <2023-11-19 Sun>
 :ID:       18e60904-6928-4c0c-9edb-a324edaf237f
 :END:
 #+BEGIN_SRC emacs-lisp
-	;; (use-package lsp-mode
-	;;   :commands lsp
-	;;   :hook (prog-mode-hook . lsp))
-	;; (use-package lsp-ui
-	;;   :commands lsp-ui-mode
-	;;   :hook (prog-mode-hook . lsp-ui-mode))
-	(use-package eglot)
-	(use-package eglot-fsharp
-		:config
-		(setq inferior-fsharp-program "dotnet fsi --readline-"))
-	(use-package consult-eglot)
-	(use-package projectile
-		:init
-		(projectile-mode +1)
-		:bind (:map projectile-mode-map))
-	;;    (define-key projectile-mode-map (kbd "SPC p") 'projectile-command-map)
-	;; (use-package counsel-projectile)
-	(use-package clang-format
-		:config
-		(setq clang-format-style "file")
-		(setq clang-format-fallback-style "Google")
-		:hook
-		(c-or-c++-mode . lsp))
-	(use-package rainbow-delimiters
-		:hook
-		(prog-mode . rainbow-delimiters-mode))
-	(use-package smartparens
-		:config
-		(setq sp-show-pair-from-inside nil)
-		(require 'smartparens-config)
-		:init
-		:diminish smartparens-mode
-		:config
-		(smartparens-global-mode))
-	;; (use-package paredit
-	;;   :hook
-	;;   (prog-mode . enable-paredit-mode))
-	;; (use-package evil-paredit
-	;;   :hook
-	;;   (paredit-mode-hook . evil-paredit-mode))
+  ;; (use-package lsp-mode
+  ;;   :commands lsp
+  ;;   :hook (prog-mode-hook . lsp))
+  ;; (use-package lsp-ui
+  ;;   :commands lsp-ui-mode
+  ;;   :hook (prog-mode-hook . lsp-ui-mode))
+  (use-package eglot)
+  (use-package eglot-fsharp
+  	:config
+  	(setq inferior-fsharp-program "dotnet fsi --readline-"))
+  (use-package consult-eglot)
+  (use-package projectile
+  	:init
+  	(projectile-mode +1)
+  	:bind (:map projectile-mode-map))
+  ;;    (define-key projectile-mode-map (kbd "SPC p") 'projectile-command-map)
+  ;; (use-package counsel-projectile)
+  (use-package clang-format
+  	:config
+  	(setq clang-format-style "file")
+  	(setq clang-format-fallback-style "Google")
+  	:hook
+  	(c-or-c++-mode . lsp))
+  (use-package rainbow-delimiters
+  	:hook
+  	(prog-mode . rainbow-delimiters-mode))
+  (use-package smartparens
+  	:config
+  	(setq sp-show-pair-from-inside nil)
+  	(require 'smartparens-config)
+  	:init
+  	:diminish smartparens-mode
+  	:config
+  	(smartparens-global-mode))
+  ;; (use-package paredit
+  ;;   :hook
+  ;;   (prog-mode . enable-paredit-mode))
+  ;; (use-package evil-paredit
+  ;;   :hook
+  ;;   (paredit-mode-hook . evil-paredit-mode))
 
-	(use-package evil-nerd-commenter
-		:config
-		(evilnc-default-hotkeys))
-	;; (use-package dap-mode
-	;; 	:after lsp
-	;; 	:config
-	;; 	(require 'dap-gdb-lldb)
-	;; 	(require 'dap-cpptools)
-	;; 	(add-hook 'dap-stopped-hook
-	;; 		  (lambda (arg) (call-interactively #'dap-hydra)))
-	;; 	(setq dap-auto-configure-features '(sessions locals controls tooltip))
-	;; 	(dap-register-debug-template "CPP GDB"
-	;; 				 (list :type "gdb"
-	;; 					   :request "launch"
-	;; 					   :name "GDB::Run")))
-	(use-package slime
-		:config
-		(setq inferior-lisp-program "sbcl"))
-	(use-package nix-mode
-		:mode "\\.nix\\'")
-	(use-package editorconfig
-		:config
-		(editorconfig-mode 1))
-	(use-package envrc
-		:config
-		(envrc-global-mode))
-	(use-package emmet-mode)
-	;; (use-package lsp-tailwindcss)
-	(use-package zig-mode)
-	(use-package rust-mode)
+  (use-package evil-nerd-commenter
+  	:config
+  	(evilnc-default-hotkeys))
+  ;; (use-package dap-mode
+  ;; 	:after lsp
+  ;; 	:config
+  ;; 	(require 'dap-gdb-lldb)
+  ;; 	(require 'dap-cpptools)
+  ;; 	(add-hook 'dap-stopped-hook
+  ;; 		  (lambda (arg) (call-interactively #'dap-hydra)))
+  ;; 	(setq dap-auto-configure-features '(sessions locals controls tooltip))
+  ;; 	(dap-register-debug-template "CPP GDB"
+  ;; 				 (list :type "gdb"
+  ;; 					   :request "launch"
+  ;; 					   :name "GDB::Run")))
+  (use-package slime
+  	:config
+  	(setq inferior-lisp-program "sbcl"))
+  (use-package nix-mode
+  	:mode "\\.nix\\'")
+  (use-package editorconfig
+  	:config
+  	(editorconfig-mode 1))
+  (use-package envrc
+  	:config
+  	(envrc-global-mode))
+  (use-package emmet-mode)
+  ;; (use-package lsp-tailwindcss)
+  (use-package zig-mode)
+  (use-package rust-mode)
+
+  (use-package markdown-mode+
+    :mode "\\.md\\'")
 #+END_SRC
 
-#+RESULTS:
+** Pkl Treesit
+:PROPERTIES:
+:ID:       33e14345-b534-4dd5-8db2-7723eeab4b93
+:END:
+#+BEGIN_SRC emacs-lisp
+  (setq treesit-language-source-alist
+        '((pkl "https://github.com/apple/tree-sitter-pkl" "main" "src" "gcc" "g++")))
+#+END_SRC
 
 ** Scheme
 :PROPERTIES:
@@ -640,7 +652,7 @@ Gave up <2023-11-19 Sun>
 	(use-package tuareg)
 	(setq opam-command "opam")
 	;; ## added by OPAM user-setup for emacs / base ## 56ab50dc8996d2bb95e7856a6eddb17b ## you can edit, but keep this line
-	(require 'opam-user-setup "~/.emacs.d/opam-user-setup.el")
+	;;(require 'opam-user-setup "~/.emacs.d/opam-user-setup.el")
 	;; ## end of OPAM user-setup addition for emacs / base ## keep this line
 
 #+END_SRC
@@ -711,59 +723,64 @@ Gave up <2023-11-19 Sun>
 :ID:       257c9a78-6201-4824-8a0d-29edf823dacc
 :END:
 #+BEGIN_SRC emacs-lisp
-	(defun my-just-one-space ()
-		(interactive)
-		(if (org-at-table-p)
-				(org-table-blank-field)
-			(just-one-space)))
+  (defun my-just-one-space ()
+    (interactive)
+    (if (org-at-table-p)
+        (org-table-blank-field)
+      (just-one-space)))
 
-	(use-package org
-        :straight
-		:bind (:map org-mode-map ("C-c SPC" . my-just-one-space))
-		:hook org-indent-mode
-		:custom
-		(org-todo-keyword-faces
-		 '(("TODO" . org-warning)
-			 ("IN-PROG" . "green")
-			 ("DONE" . "black")
-			 ("NEXT" . "yellow")
-			 ("LIMBO" . "brown")))
-		:config
+  (use-package cdlatex)
 
-		(add-hook 'completion-at-point-functions 'pcomplete-completions-at-point nil t)
-		(add-hook 'org-mode-hook '(lambda ()
-																(setq org-id-link-to-org-use-id t))))
-	(use-package evil-org
-		:after org
-		:hook (org-mode . (lambda () evil-org-mode))
-		:config
-		(require 'evil-org-agenda)
-		(evil-org-agenda-set-keys))
-	(use-package org-contrib)
-	(use-package ox-rss)
-	(use-package org-bullets)
-	(use-package gnuplot )
-	(defun my/auto-call-fill-paragraph-for-org-mode ()
-		"Call two modes to automatically call fill-paragraph for you."
-		(visual-line-mode))
-	(add-hook 'org-mode-hook 'my/auto-call-fill-paragraph-for-org-mode)
-	(add-hook 'org-mode-hook 'org-bullets-mode)
-	(setq org-hide-leading-stars t)
-	(setq org-startup-with-inline-images t)
-	(setq  org-log-into-drawer t)
-	(setq org-log-done 'time)
-	(setq org-export-backends '(ascii beamer html texinfo latex))
-	(setq  org-bullets-bullet-list '("◉" "◎" "○" "►" "◇""♠" ))
-	(use-package writeroom-mode)
-	(org-babel-do-load-languages
-	 'org-babel-load-languages
-	 '((plantuml . t))) ; this line activates plantuml
-	(setq org-plantuml-exec-mode 'plantuml)
-	(add-to-list
-	 'org-src-lang-modes '("plantuml" . plantuml))
-	(defun my-org-confirm-babel-evaluate (lang body)
-		(not (string= lang "plantuml")))
-	(setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
+  (use-package org
+    :straight
+    :bind (:map org-mode-map ("C-c SPC" . my-just-one-space))
+    :hook org-indent-mode
+    :custom
+    (org-todo-keyword-faces
+     '(("TODO" . org-warning)
+       ("IN-PROG" . "green")
+       ("DONE" . "black")
+       ("NEXT" . "yellow")
+       ("LIMBO" . "brown")))
+    :config
+    (add-hook 'org-mode-hook #'turn-on-org-cdlatex)
+
+    (setq org-latex-pdf-process
+          (list "latexmk -auxdir=%o/.aux -f -pdf %f -output-directory=%o"))
+    (add-hook 'completion-at-point-functions 'pcomplete-completions-at-point nil t)
+    (add-hook 'org-mode-hook '(lambda ()
+      						  (setq org-id-link-to-org-use-id t))))
+  (use-package evil-org
+    :after org
+    :hook (org-mode . (lambda () evil-org-mode))
+    :config
+    (require 'evil-org-agenda)
+    (evil-org-agenda-set-keys))
+  (use-package org-contrib)
+  (use-package ox-rss)
+  (use-package org-bullets)
+  (use-package gnuplot )
+  (defun my/auto-call-fill-paragraph-for-org-mode ()
+    "Call two modes to automatically call fill-paragraph for you."
+    (visual-line-mode))
+  (add-hook 'org-mode-hook 'my/auto-call-fill-paragraph-for-org-mode)
+  (add-hook 'org-mode-hook 'org-bullets-mode)
+  (setq org-hide-leading-stars t)
+  (setq org-startup-with-inline-images t)
+  (setq  org-log-into-drawer t)
+  (setq org-log-done 'time)
+  (setq org-export-backends '(ascii beamer html texinfo latex))
+  (setq  org-bullets-bullet-list '("◉" "◎" "○" "►" "◇""♠" ))
+  (use-package writeroom-mode)
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((plantuml . t))) ; this line activates plantuml
+  (setq org-plantuml-exec-mode 'plantuml)
+  (add-to-list
+   'org-src-lang-modes '("plantuml" . plantuml))
+  (defun my-org-confirm-babel-evaluate (lang body)
+    (not (string= lang "plantuml")))
+  (setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
 #+END_SRC
 *** ACM Latex Class
 :PROPERTIES:
@@ -1016,69 +1033,70 @@ Quality of life key binds.
 :ID:       c10977c6-2fce-40c0-bceb-13710027ba80
 :END:
 #+BEGIN_SRC emacs-lisp
-	(sg/leader-bind
-		:keymaps '(normal emacs visual)
-		"c" '(:ignore t :which-key "Configs")
-		"cc" '(sg/edit-config :wk "Edit config file")
-		"cn" '(sg/edit-nix-config :wk "Nix System Config")
-		"cm" '(sg/show-mu4e-shortcuts :which-key "Mu4e evil help")
-		"m" '(:ignore t :wk "Email")
-		"mm" 'mu4e
-		"s" '(:ignore t :wk "Shortcuts")
-		"st" '(vterm :wk "VTerm")
-		"si" '(indent-region :wk "Indent Region")
-		"p" '(projectile-command-map :wk "Projectile")
-		"w" '(:ignore t :wk "Window Management")
-		"wl" 'evil-window-right
-		"wh" 'evil-window-left
-		"wj" 'evil-window-down
-		"wk" 'evil-window-up
-		"wL" 'evil-window-vsplit
-		"wJ" 'evil-window-split
-		"wd" 'evil-window-delete
-		"wD" 'delete-other-windows
-		"g" '(:ignore t :wk "GDB")
-		"gm" 'gdb-many-windows
-		"gg" 'gdb
-		"gb" 'gud-break
-		"gr" 'gud-run
-		"gn" 'gud-next
-		"gs" 'gud-step
-		"gd" 'dap-hydra
-		"l" '(display-line-numbers-mode :wk Toggle Line numbers)
-		"o" '(:ignore t :wk "Org Globals")
-		"oo" '(org-capture :wk "Capture")
-		"oa" '(org-agenda :wk "Agenda")
-		"oN" '(my/make-note :wk "Create New Note File")
-		"ot" '(my/capture-todo :wk "Create TODO")
-		"on" '(my/capture-note :wk "Create Note")
-		"o." '(my/reagenda :wk "Refresh org-agenda-files")
-		"op" '(:ignore t :wk "Org Present")
-		"b" '(:ignore t :wk "Buffers")
-		"bb" 'consult-buffer
-		"SPC" 'clang-format-buffer
-		"s" '(:ignore t :wk "SmartParens")
-		"ss" 'sp-slurp-hybrid-sexp
-		"r" '(:ignore t :wk "Registers")
-		"rj" 'jump-to-register
-		"ri" 'insert-register
-		"rp" 'point-to-register
-		"ry" 'counsel-yank-pop
-		"rm" 'counsel-mark-ring
-		"C" 'compile
-		"e" '(:ignore t :wk "Eglot")
-		"ea" 'eglot-code-actions
-		"ef" 'eglot-format-buffer)
-			;;; I guess dap-mode is really just better...
-	;; (defhydra hydra-debug (global-map "<f2>")
-	;;   "Make Emacs GDB less annoying"
-	;;   ("s" gud-step "step")
-	;;   ("n" gud-next "next")
-	;;   ("u" gud-up "up")
-	;;   ("d" gud-down "down")
-	;;   ("f" gud-finish "finish"))
-	;; (general-def 'normal lsp-mode :definer 'minor-mode
-	;;   "SPC ," lsp-command-map)
+  (sg/leader-bind
+  	:keymaps '(normal emacs visual)
+  	"c" '(:ignore t :which-key "Configs")
+  	"cc" '(sg/edit-config :wk "Edit config file")
+  	"cn" '(sg/edit-nix-config :wk "Nix System Config")
+  	"cm" '(sg/show-mu4e-shortcuts :which-key "Mu4e evil help")
+  	"m" '(:ignore t :wk "Email")
+  	"mm" 'mu4e
+  	"s" '(:ignore t :wk "Shortcuts")
+  	"st" '(vterm :wk "VTerm")
+  	"si" '(indent-region :wk "Indent Region")
+  	"p" '(projectile-command-map :wk "Projectile")
+  	"w" '(:ignore t :wk "Window Management")
+  	"wl" 'evil-window-right
+  	"wh" 'evil-window-left
+  	"wj" 'evil-window-down
+  	"wk" 'evil-window-up
+  	"wL" 'evil-window-vsplit
+  	"wJ" 'evil-window-split
+  	"wd" 'evil-window-delete
+  	"wD" 'delete-other-windows
+  	"g" '(:ignore t :wk "GDB")
+  	"gm" 'gdb-many-windows
+  	"gg" 'gdb
+  	"gb" 'gud-break
+  	"gr" 'gud-run
+  	"gn" 'gud-next
+  	"gs" 'gud-step
+  	"gd" 'dap-hydra
+  	"l" '(display-line-numbers-mode :wk Toggle Line numbers)
+  	"o" '(:ignore t :wk "Org Globals")
+  	"oo" '(org-capture :wk "Capture")
+  	"oa" '(org-agenda :wk "Agenda")
+  	"oN" '(my/make-note :wk "Create New Note File")
+  	"ot" '(my/capture-todo :wk "Create TODO")
+  	"on" '(my/capture-note :wk "Create Note")
+  	"o." '(my/reagenda :wk "Refresh org-agenda-files")
+  	"op" '(:ignore t :wk "Org Present")
+  	"b" '(:ignore t :wk "Buffers")
+  	"bb" 'consult-buffer
+  	"SPC" 'clang-format-buffer
+  	"s" '(:ignore t :wk "SmartParens")
+  	"ss" 'sp-slurp-hybrid-sexp
+  	"r" '(:ignore t :wk "Registers")
+  	"rj" 'jump-to-register
+  	"ri" 'insert-register
+  	"rp" 'point-to-register
+  	"ry" 'counsel-yank-pop
+  	"rm" 'counsel-mark-ring
+  	"C" 'compile
+  	"e" '(:ignore t :wk "Eglot")
+  	"ea" 'eglot-code-actions
+  	"ef" 'eglot-format-buffer
+      "." 'org-timestamp)
+  		;;; I guess dap-mode is really just better...
+  ;; (defhydra hydra-debug (global-map "<f2>")
+  ;;   "Make Emacs GDB less annoying"
+  ;;   ("s" gud-step "step")
+  ;;   ("n" gud-next "next")
+  ;;   ("u" gud-up "up")
+  ;;   ("d" gud-down "down")
+  ;;   ("f" gud-finish "finish"))
+  ;; (general-def 'normal lsp-mode :definer 'minor-mode
+  ;;   "SPC ," lsp-command-map)
 
 #+END_SRC
 
