@@ -352,8 +352,7 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
      (setq org-src-tab-acts-natively t)
      (use-package eterm-256color)
      (use-package vterm
-       :load-path "~/.local/share/emacs-libvterm"
-       :commands vterm)
+       :load-path "~/.local/share/emacs-libvterm")
 
      (use-package plantuml-mode
        :config
@@ -519,8 +518,7 @@ Gave up <2023-11-19 Sun>
 :ID:       0a7e9959-ad62-4831-8d94-c66ed6de54ff
 :END:
 #+BEGIN_SRC emacs-lisp
-  (use-package eglot
-    :hook (prog-mode-hook . eglot-ensure))
+  (use-package eglot :straight t)
 
   (use-package eglot-fsharp
   	:config
@@ -753,11 +751,11 @@ Gave up <2023-11-19 Sun>
   (use-package org-contrib)
   (use-package ox-rss)
   (use-package org-bullets)
-  (use-package gnuplot :command gnuplot)
+  (use-package gnuplot) 
   (defun my/auto-call-fill-paragraph-for-org-mode ()
     "Call two modes to automatically call fill-paragraph for you."
     (visual-line-mode))
-  (use-package writeroom-mode :command writeroom)
+  (use-package writeroom-mode) 
 #+END_SRC
 *** ACM Latex Class
 :PROPERTIES:
@@ -1008,6 +1006,8 @@ Quality of life key binds.
   	"s" '(:ignore t :wk "Shortcuts")
   	"st" '(vterm :wk "VTerm")
   	"si" '(indent-region :wk "Indent Region")
+      "ss" 'yas-insert-snippet
+      "sn" 'yas-new-snippet
   	"p" '(projectile-command-map :wk "Projectile")
   	"w" '(:ignore t :wk "Window Management")
   	"wl" 'evil-window-right
@@ -1038,9 +1038,8 @@ Quality of life key binds.
   	"b" '(:ignore t :wk "Buffers")
   	"bb" 'consult-buffer
   	"SPC" 'clang-format-buffer
-  	"s" '(:ignore t :wk "SmartParens")
-  	"ss" 'sp-slurp-hybrid-sexp
   	"r" '(:ignore t :wk "Registers")
+      "[" '(smartparens-mode-map :wk "Smart Parens")
   	"rj" 'jump-to-register
   	"ri" 'insert-register
   	"rp" 'point-to-register
@@ -1064,7 +1063,6 @@ Quality of life key binds.
 
 #+END_SRC
 
-#+RESULTS:
 
 ** Other General Binds
 :PROPERTIES:
