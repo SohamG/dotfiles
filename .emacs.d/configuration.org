@@ -91,7 +91,6 @@ Only Ivy is currently enabled.
      ;;   (completion-category-overrides '((file (styles basic partial-completion)))))
 #+END_SRC
 
-#+RESULTS:
 **** Ivy
 :PROPERTIES:
 :ID:       d914dc6b-b55b-4001-b145-a54cc08bb325
@@ -248,7 +247,6 @@ Only Ivy is currently enabled.
     (use-package all-the-icons)
 #+END_SRC
 
-#+RESULTS:
 
 ** Fonts
 :PROPERTIES:
