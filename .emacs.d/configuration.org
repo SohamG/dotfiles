@@ -31,8 +31,6 @@
   (straight-use-package 'org)
 #+END_SRC
 
-#+RESULTS:
-: t
 ** Straight
 :PROPERTIES:
 :ID:       cef63205-4ff8-4af7-9a5f-062ba8a1e256
