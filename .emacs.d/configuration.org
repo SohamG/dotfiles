@@ -2,89 +2,8 @@
 #+TITLE: Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle init.el
 
-* Startup
-:PROPERTIES:
-:ID:       f17ee97f-febc-4774-acd2-db09c81b5ab8
-:END:
-This region is some basic/sanity check settings.
-Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
-#+BEGIN_SRC emacs-lisp
-  ;; SPDX-License-Identifier: MIT
-
-  (setq inhibit-startup-message t)
-  (scroll-bar-mode -1) ; Disable visible scrollbar
-  (tool-bar-mode -1) ;
-  (tooltip-mode -1) ; Disable tooltips
-  (set-fringe-mode 10) ; Give some breathing room
-  (menu-bar-mode -1) ; Disable the menu bar
-  (line-number-mode 1)
-
-  (setq my/monofont "Fira Code"
-    		  my/varfont "Monocraft Nerd Font")
-
-  ;; It is important to set some stuff AFTER
-  ;; the first frame has been made.
-  ;; These settings dont work in the server context.
-  (add-hook 'server-after-make-frame-hook
-    				  #'(lambda nil
-    						  (display-line-numbers-mode 1)
-    						  (setq display-line-numbers 'relative)
-    						  (global-display-fill-column-indicator-mode 1)
-    						  (set-face-attribute 'default nil :font "Fira Code"
-    																  :height 120 :weight 'regular)
-    						  (set-face-attribute 'variable-pitch nil :font my/varfont 
-    																  :height 120)))
-  ;; Set up the visible bell
-  (setq visible-bell t)
-  ;; Make ESC quit prompts
-  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-  ;; (global-set-key (kbd "C-x C-b") 'ibuffer)
-  (savehist-mode 1)
-  (setq use-dialog-box nil)
-  (global-auto-revert-mode 1)
-  (setq user-mail-address "sohamg2@gmail.com")
-  ;; (setq lsp-prefer-flymake nil)
-  (auto-save-visited-mode t)
-  (setq make-backup-files nil)
-  (setq help-window-select t)
-  (setq-default scheme-program-name "guile")
-  (tab-bar-mode 1)
-  (transient-mark-mode -1)
-  ;; Silence compiler warnings as they can be pretty disruptive
-  (setq native-comp-async-report-warnings-errors nil)
-
-  ;; Set the right directory to store the native comp cache
-  (add-to-list 'native-comp-eln-load-path
-    					   (expand-file-name "eln-cache/" user-emacs-directory))
-
-  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-  (load custom-file)
-  ;; Stop annoying pop up of compile command
-  (add-to-list 'same-window-buffer-names "*compilation*")
-
-  (setq-default indent-tabs-mode nil)
-
-  (setq epa-pinentry-mode 'loopback)
-
-  (global-unset-key (kbd "C-c C-b"))
-#+END_SRC
-
-#+RESULTS:
-| *compilation* |
-
-* Utility
-:PROPERTIES:
-:ID:       69251664-6dc5-4f2f-8e76-664eafc23b63
-:END:
-#+BEGIN_SRC emacs-lisp
-  (defun sg/edit-file (file)
-    "Function that opens the @file for editing"
-    (interactive)
-    (switch-to-buffer (find-file-noselect file)))
-#+END_SRC
-
 * Package Management
-** Setup package management.
+** =UNUSED= Setup package management.
 :PROPERTIES:
 :ID:       75632330-7091-4080-9c71-cbf7b137c1d3
 :END:
@@ -119,6 +38,7 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
 :ID:       cef63205-4ff8-4af7-9a5f-062ba8a1e256
 :END:
 #+begin_src emacs-lisp
+  ;; SPDX-License-Identifier: MIT
   (setq straight-use-package-by-default t)
   (defvar bootstrap-version)
   (let ((bootstrap-file
@@ -138,12 +58,9 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
   (straight-use-package 'org)
 #+end_src
 
-#+RESULTS:
-: t
-
 ** Completions
 Only Ivy is currently enabled.
-**** Vertico
+**** =UNUSED= Vertico
 :PROPERTIES:
 :ID:       d269a750-5cdf-40c5-ba88-23cf5444f980
 :END:
@@ -204,7 +121,7 @@ Only Ivy is currently enabled.
       ;; Remember the last used command
       (use-package smex)
     #+END_SRC
-**** Consult
+**** =UNUSED= =Consult
 :PROPERTIES:
 :ID:       e808d9bd-bf25-4939-bd9e-17c78a212e49
 :END:
@@ -317,12 +234,12 @@ Only Ivy is currently enabled.
 :ID:       7297f5da-5f2b-4f30-aad2-d628d0ac380e
 :END:
   #+BEGIN_SRC emacs-lisp
-    (use-package doom-modeline :ensure t :init (doom-modeline-mode 1)
-      :custom ((doom-modeline-height 15)))
+    ;; (use-package doom-modeline :ensure t :init (doom-modeline-mode 1)
+      ;; :custom ((doom-modeline-height 15)))
     (use-package doom-themes)
     (load-theme 'doom-dracula t)
     ;; Frames only mode (yay tiling wm)
-    (use-package frames-only-mode)
+    ;; (use-package frames-only-mode)
     ;;(frames-only-mode 1)
     ;; (use-package counsel)
     ;; (counsel-mode 1)
@@ -340,14 +257,87 @@ Only Ivy is currently enabled.
 :ID:       84e0acd1-f58d-4d8f-833b-7f9fe189bdec
 :END:
    #+BEGIN_SRC emacs-lisp
-		 (use-package fira-code-mode
-			 :hook server-after-make-frame
-			 :config
-			 (global-fira-code-mode 1))
-		 (use-package emojify)
+     (use-package fira-code-mode
+         :hook server-after-make-frame
+         :config
+         (global-fira-code-mode 1)
+         (setq fira-code-mode-disabled-ligatures '("x")))
+     (use-package emojify)
 #+END_SRC
 
-** Misc
+* Startup
+:PROPERTIES:
+:ID:       f17ee97f-febc-4774-acd2-db09c81b5ab8
+:END:
+This region is some basic/sanity check settings.
+Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
+#+BEGIN_SRC emacs-lisp
+  (use-package emacs
+    :config
+    
+
+    
+    (setq inhibit-startup-message t)
+    (scroll-bar-mode -1) ; Disable visible scrollbar
+    (tool-bar-mode -1) ;
+    (tooltip-mode -1) ; Disable tooltips
+    (set-fringe-mode 10) ; Give some breathing room
+    (menu-bar-mode -1) ; Disable the menu bar
+    (line-number-mode 1)
+
+    (setq my/monofont "Fira Code"
+    		my/varfont "Monocraft Nerd Font")
+
+    ;; It is important to set some stuff AFTER
+    ;; the first frame has been made.
+    ;; These settings dont work in the server context.
+    (add-hook 'server-after-make-frame-hook
+    			#'(lambda nil
+    				(display-line-numbers-mode 1)
+    				(setq display-line-numbers 'relative)
+    				(global-display-fill-column-indicator-mode 1)
+    				(set-face-attribute 'default nil :font "Fira Code"
+    									:height 120 :weight 'regular)
+    				(set-face-attribute 'variable-pitch nil :font my/varfont 
+    									:height 120)))
+    ;; Set up the visible bell
+    (setq visible-bell t)
+    ;; Make ESC quit prompts
+    (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+    ;; (global-set-key (kbd "C-x C-b") 'ibuffer)
+    (savehist-mode 1)
+    (setq use-dialog-box nil)
+    (global-auto-revert-mode 1)
+    (setq user-mail-address "sohamg2@gmail.com")
+    ;; (setq lsp-prefer-flymake nil)
+    (auto-save-visited-mode t)
+    (setq make-backup-files nil)
+    (setq help-window-select t)
+    (setq-default scheme-program-name "guile")
+    (tab-bar-mode 1)
+    (transient-mark-mode -1)
+    ;; Silence compiler warnings as they can be pretty disruptive
+    (setq native-comp-async-report-warnings-errors nil)
+
+    ;; Set the right directory to store the native comp cache
+    (add-to-list 'native-comp-eln-load-path
+    			   (expand-file-name "eln-cache/" user-emacs-directory))
+
+    (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+    (load custom-file)
+    ;; Stop annoying pop up of compile command
+    (add-to-list 'same-window-buffer-names "*compilation*")
+
+    (setq-default indent-tabs-mode nil)
+
+    (setq epa-pinentry-mode 'loopback)
+
+    (global-unset-key (kbd "C-c C-b"))
+
+    (add-hook 'image-mode (lambda () (setq-local inhibit-eval-during-redisplay t))))
+#+END_SRC
+
+* General Packages
 :PROPERTIES:
 :ID:       7242222b-3a5e-4c44-8292-057e6db2f0cb
 :END:
@@ -368,19 +358,7 @@ Only Ivy is currently enabled.
      (use-package vterm
        :load-path "~/.local/share/emacs-libvterm"
        :commands vterm)
-     ;; (use-package company
-     ;;   :config
-     ;;   (global-company-mode 1)
-     ;;   (setq company-idle-delay 0.2
-     ;;     company-minimum-prefix-length 2)
-     ;;   :bind
-     ;;   (("M-TAB" . company-complete)))
-     ;; (use-package company-box
-     ;;   :hook (company-mode . company-box-mode))
-     ;; (use-package company-shell
-     ;;   :after company
-     ;;   :config
-     ;;   (add-to-list 'company-backends 'company-shell))
+
      (use-package plantuml-mode
        :config
        (setq plantuml-default-exec-mode 'executable))
@@ -390,8 +368,8 @@ Only Ivy is currently enabled.
 
      (use-package minions
        :config
-       (minions-mode 1))
-     (add-to-list 'global-mode-string '("" wc-buffer-stats))
+       (minions-mode 1)
+       (add-to-list 'global-mode-string '("" wc-buffer-stats)))
 
      (use-package spdx
        :ensure t
@@ -422,10 +400,6 @@ Only Ivy is currently enabled.
     :init
     (global-corfu-mode))
 
-  (use-package emacs
-    :init
-    (setq tab-always-indent 'complete))
-
   (use-package cape
     :init
     (add-to-list 'completion-at-point-functions #'cape-file)
@@ -442,33 +416,44 @@ Only Ivy is currently enabled.
     (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
 #+end_src
 
+* Utility
+:PROPERTIES:
+:ID:       69251664-6dc5-4f2f-8e76-664eafc23b63
+:END:
+#+BEGIN_SRC emacs-lisp
+  (defun sg/edit-file (file)
+    "Function that opens the @file for editing"
+    (interactive)
+    (switch-to-buffer (find-file-noselect file)))
+#+END_SRC
+
 * Evil
 :PROPERTIES:
 :ID:       4224925b-76f3-435b-b48b-601f2ac6cbbb
 :END:
 Embrace VIM.
 #+BEGIN_SRC emacs-lisp
-	(use-package evil
-		:init
-		(setq evil-want-integration t
-		evil-want-keybinding nil
-		evil-want-C-u-scroll t)
-		:config
-		(evil-mode 1))
-	(use-package evil-collection
-		:after evil
-		:config
-		(evil-collection-init))
+  (use-package evil
+    :init
+    (setq evil-want-integration t
+  	    evil-want-keybinding nil
+  	    evil-want-C-u-scroll t)
+    :config
+    (evil-mode 1))
+  (use-package evil-collection
+    :after evil
+    :config
+    (evil-collection-init))
 
-	(use-package undo-tree
-		:after evil
-		:diminish
-		:config
-		(evil-set-undo-system 'undo-tree)
-		(global-undo-tree-mode 1))
-	(use-package evil-surround
-		:config
-		(global-evil-surround-mode 1))
+  (use-package undo-tree
+    :after evil
+    :diminish
+    :config
+    (evil-set-undo-system 'undo-tree)
+    (global-undo-tree-mode 1))
+  (use-package evil-surround
+    :config
+    (global-evil-surround-mode 1))
 #+END_SRC
 
 #+RESULTS:
@@ -484,20 +469,17 @@ Embrace VIM.
 #+BEGIN_SRC emacs-lisp
   (use-package mu4e
     :straight nil
-    :config
+    :init
+    (setq send-mail-function 'sendmail-send-it)
     (setq mu4e-change-filenames-when-moving t)
-
     (setq mu4e-update-interval nil)
     (setq mu4e-get-mail-command "mbsync -a")
-
     (setq mu4e-maildir "~/Maildir")
-
     (setq mu4e-drafts-folder "/gmail/[Gmail]/Drafts")
     (setq mu4e-sent-folder "/gmail/[Gmail]/Sent Mail")
     (setq mu4e-refile-folder "/gmail/[Gmail]/All Mail")
     (setq mu4e-trash-folder "/gmail/[Gmail]/Trash"))
 
-  (setq send-mail-function 'sendmail-send-it)
 #+END_SRC
 
 #+RESULTS:
@@ -536,18 +518,20 @@ Gave up <2023-11-19 Sun>
 :PROPERTIES:
 :ID:       18e60904-6928-4c0c-9edb-a324edaf237f
 :END:
+** General LSP Config
+:PROPERTIES:
+:ID:       0a7e9959-ad62-4831-8d94-c66ed6de54ff
+:END:
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package lsp-mode
-  ;;   :commands lsp
-  ;;   :hook (prog-mode-hook . lsp))
-  ;; (use-package lsp-ui
-  ;;   :commands lsp-ui-mode
-  ;;   :hook (prog-mode-hook . lsp-ui-mode))
-  (use-package eglot)
+  (use-package eglot
+    :hook (prog-mode-hook . eglot-ensure))
+
   (use-package eglot-fsharp
   	:config
   	(setq inferior-fsharp-program "dotnet fsi --readline-"))
+
   (use-package consult-eglot)
+
   (use-package projectile
   	:init
   	(projectile-mode +1)
@@ -555,55 +539,43 @@ Gave up <2023-11-19 Sun>
   ;;    (define-key projectile-mode-map (kbd "SPC p") 'projectile-command-map)
   ;; (use-package counsel-projectile)
   (use-package clang-format
-  	:config
+  	:init
   	(setq clang-format-style "file")
   	(setq clang-format-fallback-style "Google")
   	:hook
   	(c-or-c++-mode . lsp))
+
   (use-package rainbow-delimiters
   	:hook
   	(prog-mode . rainbow-delimiters-mode))
+
   (use-package smartparens
-  	:config
-  	(setq sp-show-pair-from-inside nil)
-  	(require 'smartparens-config)
   	:init
   	:diminish smartparens-mode
   	:config
-  	(smartparens-global-mode))
-  ;; (use-package paredit
-  ;;   :hook
-  ;;   (prog-mode . enable-paredit-mode))
-  ;; (use-package evil-paredit
-  ;;   :hook
-  ;;   (paredit-mode-hook . evil-paredit-mode))
+  	(setq sp-show-pair-from-inside nil)
+  	(smartparens-global-mode)
+  	(require 'smartparens-config))
 
   (use-package evil-nerd-commenter
   	:config
   	(evilnc-default-hotkeys))
-  ;; (use-package dap-mode
-  ;; 	:after lsp
-  ;; 	:config
-  ;; 	(require 'dap-gdb-lldb)
-  ;; 	(require 'dap-cpptools)
-  ;; 	(add-hook 'dap-stopped-hook
-  ;; 		  (lambda (arg) (call-interactively #'dap-hydra)))
-  ;; 	(setq dap-auto-configure-features '(sessions locals controls tooltip))
-  ;; 	(dap-register-debug-template "CPP GDB"
-  ;; 				 (list :type "gdb"
-  ;; 					   :request "launch"
-  ;; 					   :name "GDB::Run")))
+
   (use-package slime
-  	:config
+  	:init
   	(setq inferior-lisp-program "sbcl"))
+
   (use-package nix-mode
   	:mode "\\.nix\\'")
+
   (use-package editorconfig
   	:config
   	(editorconfig-mode 1))
+
   (use-package envrc
   	:config
   	(envrc-global-mode))
+
   (use-package emmet-mode)
   ;; (use-package lsp-tailwindcss)
   (use-package zig-mode)
@@ -691,27 +663,28 @@ Gave up <2023-11-19 Sun>
 :ID:       472fc405-334a-4815-b000-e0b9e02e16d1
 :END:
 #+BEGIN_SRC emacs-lisp
-	(use-package eglot-java)
-	(add-hook 'java-mode-hook 'eglot-java-mode)
-	(add-hook 'eglot-java-mode-hook (lambda ()                                        
-		(define-key eglot-java-mode-map (kbd "C-c l n") #'eglot-java-file-new)
-		(define-key eglot-java-mode-map (kbd "C-c l x") #'eglot-java-run-main)
-		(define-key eglot-java-mode-map (kbd "C-c l t") #'eglot-java-run-test)
-		(define-key eglot-java-mode-map (kbd "C-c l N") #'eglot-java-project-new)
-		(define-key eglot-java-mode-map (kbd "C-c l T") #'eglot-java-project-build-task)
-		(define-key eglot-java-mode-map (kbd "C-c l R") #'eglot-java-project-build-refresh)))
+  (use-package eglot-java
+    :config
+    (add-hook 'java-mode-hook 'eglot-java-mode)
+    (add-hook 'eglot-java-mode-hook
+              (lambda ()                                        
+  	          (define-key eglot-java-mode-map (kbd "C-c l n") #'eglot-java-file-new)
+  	          (define-key eglot-java-mode-map (kbd "C-c l x") #'eglot-java-run-main)
+  	          (define-key eglot-java-mode-map (kbd "C-c l t") #'eglot-java-run-test)
+  	          (define-key eglot-java-mode-map (kbd "C-c l N") #'eglot-java-project-new)
+  	          (define-key eglot-java-mode-map (kbd "C-c l T") #'eglot-java-project-build-task)
+  	          (define-key eglot-java-mode-map (kbd "C-c l R") #'eglot-java-project-build-refresh))))
 #+END_SRC
 ** Vagrant/P4
 :PROPERTIES:
 :ID:       5f4f523f-5651-406e-9d25-7539e365029d
 :END:
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
   (use-package vagrant-tramp)
   (use-package xcscope)
   ;; (add-to-list 'load-path (concat user-emacs-directory "p4-mode"))
   ;; https://raw.githubusercontent.com/p4lang/tutorials/master/vm/p4_16-mode.el
-  (use-package p4_16-mode
-    :straight (p4_16-mode :host github :repo "SohamG/p4_16-mode.el")
+  (use-package p4-16-mode
     :mode "\\.p4\\'")
 #+end_src
 * Org
@@ -723,18 +696,39 @@ Gave up <2023-11-19 Sun>
 :ID:       257c9a78-6201-4824-8a0d-29edf823dacc
 :END:
 #+BEGIN_SRC emacs-lisp
-  (defun my-just-one-space ()
-    (interactive)
-    (if (org-at-table-p)
-        (org-table-blank-field)
-      (just-one-space)))
-
   (use-package cdlatex)
 
   (use-package org
     :straight
-    :bind (:map org-mode-map ("C-c SPC" . my-just-one-space))
     :hook org-indent-mode
+    :init
+    (setq org-hide-leading-stars t)
+    (setq org-startup-with-inline-images t)
+    (setq  org-log-into-drawer t)
+    (setq org-log-done 'time)
+    (setq org-export-backends '(ascii beamer html texinfo latex))
+    (setq  org-bullets-bullet-list '("◉" "◎" "○" "►" "◇""♠" ))
+    (setq org-plantuml-exec-mode 'plantuml)
+    (add-to-list
+     'org-src-lang-modes '("plantuml" . plantuml))
+    (defun my-org-confirm-babel-evaluate (lang body)
+      (not (string= lang "plantuml")))
+    (setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
+    (setq org-latex-pdf-process
+          (list "latexmk -auxdir=%o/.aux -f -pdf %f -output-directory=%o"))
+
+    (setq org-directory "/mnt/nextcloud/Notes"
+  	    org-default-notes-file (concat org-directory "/main.org")
+  	    org-capture-templates
+  	    '(("n" "Note" entry (file+headline org-default-notes-file "Master Notes")
+  		   "* %^{TITLE|untitled} %^g %i\n %T \n %?\n")
+  		  ("t" "Todo" entry (file org-default-notes-file)
+  		   "* TODO %^{TITLE|untitled} %^g %i\n %T \n %?\n" :tree-type month))
+  	    org-todo-keywords
+  	    '((sequence "TODO(t)" "NEXT(n)" "IN-PROG(i)" "|" "DONE(d)" "WONT-DO(w@)" "LIMBO(l)"))
+  	    org-id-link-to-org-use-id t
+  	    org-refile-targets '((nil :maxlevel . 3))
+  	    org-agenda-files (list org-default-notes-file))
     :custom
     (org-todo-keyword-faces
      '(("TODO" . org-warning)
@@ -743,10 +737,13 @@ Gave up <2023-11-19 Sun>
        ("NEXT" . "yellow")
        ("LIMBO" . "brown")))
     :config
+
+    (add-hook 'org-mode-hook 'org-bullets-mode)
     (add-hook 'org-mode-hook #'turn-on-org-cdlatex)
 
-    (setq org-latex-pdf-process
-          (list "latexmk -auxdir=%o/.aux -f -pdf %f -output-directory=%o"))
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((plantuml . t))) ; this line activates plantuml
     (add-hook 'completion-at-point-functions 'pcomplete-completions-at-point nil t)
     (add-hook 'org-mode-hook '(lambda ()
       						  (setq org-id-link-to-org-use-id t))))
@@ -756,31 +753,15 @@ Gave up <2023-11-19 Sun>
     :config
     (require 'evil-org-agenda)
     (evil-org-agenda-set-keys))
+
   (use-package org-contrib)
   (use-package ox-rss)
   (use-package org-bullets)
-  (use-package gnuplot )
+  (use-package gnuplot :command gnuplot)
   (defun my/auto-call-fill-paragraph-for-org-mode ()
     "Call two modes to automatically call fill-paragraph for you."
     (visual-line-mode))
-  (add-hook 'org-mode-hook 'my/auto-call-fill-paragraph-for-org-mode)
-  (add-hook 'org-mode-hook 'org-bullets-mode)
-  (setq org-hide-leading-stars t)
-  (setq org-startup-with-inline-images t)
-  (setq  org-log-into-drawer t)
-  (setq org-log-done 'time)
-  (setq org-export-backends '(ascii beamer html texinfo latex))
-  (setq  org-bullets-bullet-list '("◉" "◎" "○" "►" "◇""♠" ))
-  (use-package writeroom-mode)
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((plantuml . t))) ; this line activates plantuml
-  (setq org-plantuml-exec-mode 'plantuml)
-  (add-to-list
-   'org-src-lang-modes '("plantuml" . plantuml))
-  (defun my-org-confirm-babel-evaluate (lang body)
-    (not (string= lang "plantuml")))
-  (setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
+  (use-package writeroom-mode :command writeroom)
 #+END_SRC
 *** ACM Latex Class
 :PROPERTIES:
@@ -801,28 +782,16 @@ Gave up <2023-11-19 Sun>
 :ID:       c50d208c-7836-438c-ab40-29b9142a639f
 :END:
 #+BEGIN_SRC emacs-lisp
-	(defun my/agenda ()
-		(interactive)
-		(append (directory-files-recursively org-directory "\\todo\.org$") '("main.org")))
+  (defun my/agenda ()
+    (interactive)
+    (append (directory-files-recursively org-directory "\\todo\.org$") '("main.org")))
 
-	(setq org-directory "/mnt/nextcloud/Notes"
-				org-default-notes-file (concat org-directory "/main.org")
-				org-capture-templates
-				'(("n" "Note" entry (file+headline org-default-notes-file "Master Notes")
-					 "* %^{TITLE|untitled} %^g %i\n %T \n %?\n")
-					("t" "Todo" entry (file org-default-notes-file)
-					 "* TODO %^{TITLE|untitled} %^g %i\n %T \n %?\n" :tree-type month))
-				org-todo-keywords
-				'((sequence "TODO(t)" "NEXT(n)" "IN-PROG(i)" "|" "DONE(d)" "WONT-DO(w@)" "LIMBO(l)"))
-				org-id-link-to-org-use-id t
-				org-refile-targets '((nil :maxlevel . 3))
-				org-agenda-files (list org-default-notes-file))
-	(defun my/make-note ()
-		(interactive)
-		(find-file org-directory))
+  (defun my/make-note ()
+    (interactive)
+    (find-file org-directory))
 
-	(setq org-tags-alist
-				'(("lug" . "l")))
+  (setq org-tags-alist
+  	  '(("lug" . "l")))
 #+END_SRC
 
 *** Deft
@@ -845,7 +814,7 @@ Gave up <2023-11-19 Sun>
 #+RESULTS:
 : deft
 
-** Use Org-Roam - Note taking/mind mapping system
+** =UNUSED= Use Org-Roam - Note taking/mind mapping system
 :PROPERTIES:
 :ID:       6cbd5374-a7fa-4a89-ad08-0a182e574a0a
 :END:
@@ -886,98 +855,96 @@ Gave up <2023-11-19 Sun>
 :END:
 Test text.
 #+BEGIN_SRC emacs-lisp
-	(use-package org-present)
+  (use-package org-present
+    :init
+    (defun my/org-present-start ()
+      (interactive)
+      ;; Center the presentation and wrap lines
+      (setq visual-fill-column-width 800)
+      (visual-fill-column-mode 1)
+      ;; Tweak font sizes
+      (variable-pitch-mode 1)
+      (buffer-face-set 'variable-pitch)
+      (setq writeroom-width 800)
+      ;; NOTE: These settings might not be ideal for your machine, tweak them as needed!
+      (set-face-attribute 'default nil :font my/monofont
+                          :weight 'regular :height 120)
+      (set-face-attribute 'fixed-pitch nil :font my/monofont
+                          :weight 'light :height 120)
+      (set-face-attribute 'variable-pitch nil :font my/varfont
+                          :weight 'light :height 1.1 )
 
-	(defun my/org-present-start ()
-		(interactive)
-		;; Center the presentation and wrap lines
-		(setq visual-fill-column-width 800)
-		(visual-fill-column-mode 1)
-		;; Tweak font sizes
-		(variable-pitch-mode 1)
-		(buffer-face-set 'variable-pitch)
-		(setq writeroom-width 800)
-		;; NOTE: These settings might not be ideal for your machine, tweak them as needed!
-		(set-face-attribute 'default nil :font my/monofont :weight 'regular :height 120)
-		(set-face-attribute 'fixed-pitch nil :font my/monofont :weight 'light :height 120)
-		(set-face-attribute 'variable-pitch nil :font my/varfont :weight 'light :height 1.1 )
+      (setq face-remapping-alist
+            '((default (:height 1.5) variable-pitch)
+  	        (header-line (:height 4.0) variable-pitch)
+  	        (org-document-title (:height 1.75) org-document-title)
+  	        (org-code (:height 1.55) org-code)
+  	        (org-verbatim (:height 1.55) org-verbatim)
+  	        (org-block (:height 1.25) org-block)
+  	        (org-block-begin-line (:height 0.7) org-block)))
 
-		(setq face-remapping-alist '((default (:height 1.5) variable-pitch)
-																			 (header-line (:height 4.0) variable-pitch)
-																			 (org-document-title (:height 1.75) org-document-title)
-																			 (org-code (:height 1.55) org-code)
-																			 (org-verbatim (:height 1.55) org-verbatim)
-																			 (org-block (:height 1.25) org-block)
-																			 (org-block-begin-line (:height 0.7) org-block)))
+      ;; Load org-faces to make sure we can set appropriate faces
+      (require 'org-faces)
+      ;; Hide emphasis markers on formatted text
+      (setq-local org-hide-emphasis-markers t)
 
-		;; Load org-faces to make sure we can set appropriate faces
-		(require 'org-faces)
-		;; Hide emphasis markers on formatted text
-		(setq-local org-hide-emphasis-markers t)
+      ;; Resize Org headings
+      (dolist (face '((org-level-1 . 1.2)
+  				    (org-level-2 . 1.1)
+  				    (org-level-3 . 1.05)
+  				    (org-level-4 . 1.0)
+  				    (org-level-5 . 1.1)
+  				    (org-level-6 . 1.1)
+  				    (org-level-7 . 1.1)
+  				    (org-level-8 . 1.1)))
+  	  (set-face-attribute (car face) nil :font my/monofont
+                            :weight 'bold :height (cdr face)))
 
-		;; Resize Org headings
-		(dolist (face '((org-level-1 . 1.2)
-										(org-level-2 . 1.1)
-										(org-level-3 . 1.05)
-										(org-level-4 . 1.0)
-										(org-level-5 . 1.1)
-										(org-level-6 . 1.1)
-										(org-level-7 . 1.1)
-										(org-level-8 . 1.1)))
-			(set-face-attribute (car face) nil :font my/monofont :weight 'bold :height (cdr face)))
+      ;; ;; Make 
+      ;; the document title a bit bigger
+      (set-face-attribute 'org-document-title nil
+                          :font my/varfont :weight 'bold :height 1.3)
 
-		;; ;; Make 
-		;; the document title a bit bigger
-		(set-face-attribute 'org-document-title nil :font my/varfont :weight 'bold :height 1.3)
+      ;; Make sure certain org faces use the fixed-pitch face when variable-pitch-mode is on
+      (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+      (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
+      (set-face-attribute 'org-formula nil :inherit 'fixed-pitch)
+      (set-face-attribute 'org-code nil :inherit '(shadow fixed-pitch))
+      (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+      (set-face-attribute 'org-special-keyword nil
+                          :inherit '(font-lock-comment-face fixed-pitch))
+      (set-face-attribute 'org-meta-line nil
+                          :inherit '(font-lock-comment-face fixed-pitch))
+      (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+      (visual-line-mode 1))
+    (defun my/org-present-end ()
+      (interactive)
+      ;; Stop centering the document
+      (visual-fill-column-mode 0)
+      (setq face-remapping-alist nil)
+      ;; Clear the header line string so that it isn't displayed
+      (setq header-line-format nil)
+      (variable-pitch-mode -1)
+      (buffer-face-set 'default)
+      ;; Stop displaying inline images
 
-		;; Make sure certain org faces use the fixed-pitch face when variable-pitch-mode is on
-		(set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-		(set-face-attribute 'org-table nil :inherit 'fixed-pitch)
-		(set-face-attribute 'org-formula nil :inherit 'fixed-pitch)
-		(set-face-attribute 'org-code nil :inherit '(shadow fixed-pitch))
-		(set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-		(set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-		(set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-		(set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
-		(visual-line-mode 1))
-	(defun my/org-present-end ()
-		(interactive)
-		;; Stop centering the document
-		(visual-fill-column-mode 0)
-		(setq face-remapping-alist nil)
-		;; Clear the header line string so that it isn't displayed
-		(setq header-line-format nil)
-		(variable-pitch-mode -1)
-		(buffer-face-set 'default)
-		;; Stop displaying inline images
-
-								(set-face-attribute 'default nil :font "Fira Code"
-																		:height 120 :weight 'regular)
-		(org-remove-inline-images)
-		(visual-line-mode 0))
-
-
-
-	(defun my/org-present-prepare-slide (buffer-name heading)
-		;; Show only top-level headlines
-		(org-overview)
-
-		;; Unfold the current entry
-		(org-show-entry)
-
-		;; Show only direct subheadings of the slide but don't expand them
-		(org-show-children))
-	;; Turn on variable pitch fonts in Org Mode buffers
-	;; (add-hook 'org-present-mode-hook 'variable-pitch-mode)
-
-	;; Register hooks with org-present
-	(add-hook 'org-present-mode-hook 'my/org-present-start)
-	(add-hook 'org-present-mode-quit-hook 'my/org-present-end)
-	(add-hook 'org-present-after-navigate-functions 'my/org-present-prepare-slide)
+      (set-face-attribute 'default nil :font "Fira Code"
+  					    :height 120 :weight 'regular)
+      (org-remove-inline-images)
+      (visual-line-mode 0))
+    :config
+    (defun my/org-present-prepare-slide (buffer-name heading)
+      ;; Show only top-level headlines
+      (org-overview)
+      ;; Unfold the current entry
+      (org-show-entry)
+      ;; Show only direct subheadings of the slide but don't expand them
+      (org-show-children))
+    ;; Register hooks with org-present
+    (add-hook 'org-present-mode-hook 'my/org-present-start)
+    (add-hook 'org-present-mode-quit-hook 'my/org-present-end)
+    (add-hook 'org-present-after-navigate-functions 'my/org-present-prepare-slide))
 #+END_SRC
-
-#+RESULTS:
-| my/org-present-prepare-slide |
 
 ** Babel
 :PROPERTIES:
@@ -990,9 +957,10 @@ Test text.
       (insert body))
     (org-babel-eval
      (format "make -f %s" ".org-make") ""))
+
   (org-babel-do-load-languages
-  'org-babel-load-languages
-  '((shell . t)))
+   'org-babel-load-languages
+   '((shell . t)))
 #+END_SRC
 * LaTeX
 :PROPERTIES:
