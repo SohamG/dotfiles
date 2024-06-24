@@ -1,5 +1,6 @@
 # The following lines were added by compinstall
 
+export AGNOSTER_DISABLE_CONTEXT="1"
 zstyle ':completion:*' completer _complete _ignored _approximate
 zstyle :compinstall filename '/home/sohamg/.zshrc'
 
@@ -150,4 +151,13 @@ take() {
 }
 cleantex() {
     rm -rf *.aux *.log *.fls 
+}
+
+GUIX_PROFILE="/home/sohamg/.config/guix/current"
+. "$GUIX_PROFILE/etc/profile"
+
+prompt_context() {
+#  if [[ "$USER" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
+#    prompt_segment black default "%(!.%{%F{yellow}%}.)$USER"
+#  fi
 }

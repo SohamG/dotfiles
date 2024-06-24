@@ -6,3 +6,5 @@
 	defaultBranch = main
 [commit]
 #	gpgSign = true
+[safe]
+	directory = /home/sohamg/quads/minvec
