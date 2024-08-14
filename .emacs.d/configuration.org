@@ -59,6 +59,13 @@
   (use-package straight
     :custom
     (straight-use-package-by-default t))
+
+  (use-package project
+    :ensure nil)
+
+  (straight-use-package 'eglot)
+
+  (package-initialize)
 #+end_src
 
 ** Completions
@@ -129,7 +136,7 @@ Only Ivy is currently enabled.
 :PROPERTIES:
 :ID:       e808d9bd-bf25-4939-bd9e-17c78a212e49
 :END:
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle nil
       ;; Example configuration for Consult
       (use-package consult
 	;; Replace bindings. Lazily loaded due by `use-package'
@@ -242,7 +249,7 @@ Only Ivy is currently enabled.
       ;; :custom ((doom-modeline-height 15)))
     (use-package doom-themes
       :config
-      (load-theme 'doom-dracula t))
+      (load-theme 'doom-solarized-light t))
     ;;(load-theme 'doom-dracula t)
     ;; Frames only mode (yay tiling wm)
     ;; (use-package frames-only-mode)
@@ -299,9 +306,9 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
     				(setq display-line-numbers 'relative)
     				(global-display-fill-column-indicator-mode 1)
     				(set-face-attribute 'default nil :font "Fira Code"
-    									:height 120 :weight 'regular)
+    									:height 130 :weight 'medium)
     				(set-face-attribute 'variable-pitch nil :font my/varfont 
-    									:height 120)))
+    									:height 130)))
     ;; Set up the visible bell
     (setq visible-bell t)
     ;; Make ESC quit prompts
@@ -332,11 +339,11 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
     (setq-default indent-tabs-mode nil)
 
 
-    (global-unset-key (kbd "C-c C-b"))
+    (global-unset-key (kbd "C-c C-b")))
 
-    (add-hook 'image-mode-new-window-functions (lambda (&optional _)
-  											   (message "Ran image mode hook")
-  											   (setq-local inhibit-eval-during-redisplay t))))
+    ;; (add-hook 'image-mode-new-window-functions (lambda (&optional _)
+  	;; 										   (message "Ran image mode hook")
+  	;; 										   (setq-local inhibit-eval-during-redisplay t))))
 #+END_SRC
 
 * General Packages
@@ -356,15 +363,14 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
      (use-package hydra)
      (use-package which-key
        :config
-       (setq which-key-idle-delay 0.2)
+       (setq which-key-idle-delay 1)
        (which-key-mode 1))
 
      (setq org-src-tab-acts-natively t)
 
      (use-package eterm-256color)
-     (use-package vterm
-       :command vterm
-       :load-path "~/.local/share/emacs-libvterm")
+     (use-package vterm :ensure nil)
+       
 
      (use-package plantuml-mode
        :mode "\\.uml$"
@@ -426,8 +432,139 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
     "Function that opens the @file for editing"
     (interactive)
     (switch-to-buffer (find-file-noselect file)))
+
+  (defun my/fuck-go ()
+    "fuck me"
+    (interactive)
+    (eglot-rename (capitalize (thing-at-point 'word t))))
+
+  (global-set-key (kbd "C-l") #'my/fuck-go)
+  (defun my/capture-todo ()
+    (interactive)
+    (org-capture nil "t"))
+  (defun my/capture-note ()
+    (interactive)
+    (org-capture nil "n"))
+  (defun sg/edit-config ()
+    "Edit configuration.org"
+    (interactive)
+    (sg/edit-file "~/.emacs.d/configuration.org"))
+  (defun sg/edit-nix-config ()
+    "Edit configuration.org"
+    (interactive)
+    (sg/edit-file "~/nixcfg/t495/thinkpad.nix"))
+  (defun sg/show-mu4e-shortcuts ()
+    "Show Help for Evil collection for Mu4e"
+    (interactive)
+    (with-output-to-temp-buffer "tmphlp"
+    	(set-buffer "tmphlp")
+    	(insert-file-contents "~/.config/emacs/mu4ehelp.org")))
 #+END_SRC
 
+** Setup General
+:PROPERTIES:
+:ID:       a9708d7d-729a-4bb6-a20d-86542a01810a
+:END:
+#+BEGIN_SRC emacs-lisp
+  (use-package general
+      :demand t
+  	:config
+  	(general-create-definer sg/leader-bind
+  		:prefix "SPC"))
+#+END_SRC
+** General leader map
+:PROPERTIES:
+:ID:       c10977c6-2fce-40c0-bceb-13710027ba80
+:END:
+#+BEGIN_SRC emacs-lisp
+  (sg/leader-bind
+  	:keymaps '(normal emacs visual)
+  	"c" '(:ignore t :which-key "Configs")
+  	"cc" '(sg/edit-config :wk "Edit config file")
+  	"cn" '(sg/edit-nix-config :wk "Nix System Config")
+  	"cm" '(sg/show-mu4e-shortcuts :which-key "Mu4e evil help")
+  	"m" '(:ignore t :wk "Email")
+  	"mm" 'mu4e
+  	"s" '(:ignore t :wk "Shortcuts")
+  	"st" '(vterm :wk "VTerm")
+  	"si" '(indent-region :wk "Indent Region")
+      "ss" 'yas-insert-snippet
+      "sn" 'yas-new-snippet
+  	"p" '(project-prefix-map :wk "Projectile")
+  	"w" '(:ignore t :wk "Window Management")
+  	"wl" 'evil-window-right
+  	"wh" 'evil-window-left
+  	"wj" 'evil-window-down
+  	"wk" 'evil-window-up
+  	"wL" 'evil-window-vsplit
+  	"wJ" 'evil-window-split
+  	"wd" 'evil-window-delete
+  	"wD" 'delete-other-windows
+  	"g" '(:ignore t :wk "GDB")
+  	"gm" 'gdb-many-windows
+  	"gg" 'gdb
+  	"gb" 'gud-break
+  	"gr" 'gud-run
+  	"gn" 'gud-next
+  	"gs" 'gud-step
+  	"gd" 'dap-hydra
+  	"l" '(display-line-numbers-mode :wk Toggle Line numbers)
+  	"o" '(:ignore t :wk "Org Globals")
+  	"oo" '(org-capture :wk "Capture")
+  	"oa" '(org-agenda :wk "Agenda")
+  	"oN" '(my/make-note :wk "Create New Note File")
+  	"ot" '(my/capture-todo :wk "Create TODO")
+  	"on" '(my/capture-note :wk "Create Note")
+  	"o." '(my/reagenda :wk "Refresh org-agenda-files")
+  	"op" '(:ignore t :wk "Org Present")
+  	"b" '(:ignore t :wk "Buffers")
+  	;; "bb" 'consult-buffer
+  	"SPC" 'clang-format-buffer
+  	"r" '(:ignore t :wk "Registers")
+      "[" '(smartparens-mode-map :wk "Smart Parens")
+  	"rj" 'jump-to-register
+  	"ri" 'insert-register
+  	"rp" 'point-to-register
+  	"ry" 'counsel-yank-pop
+  	"rm" 'counsel-mark-ring
+  	"C" 'compile
+  	"e" '(:ignore t :wk "Eglot")
+  	"ea" 'eglot-code-actions
+  	"ef" 'eglot-format-buffer
+  	"er" 'eglot-rename
+      "." 'org-timestamp
+      "f" '(:ignore t :wk "Flymake")
+      "ff" 'flymake-goto-next-error
+      "fw" 'flymake-goto-diagnostic)
+  		;;; I guess dap-mode is really just better...
+  ;; (defhydra hydra-debug (global-map "<f2>")
+  ;;   "Make Emacs GDB less annoying"
+  ;;   ("s" gud-step "step")
+  ;;   ("n" gud-next "next")
+  ;;   ("u" gud-up "up")
+  ;;   ("d" gud-down "down")
+  ;;   ("f" gud-finish "finish"))
+  ;; (general-def 'normal lsp-mode :definer 'minor-mode
+  ;;   "SPC ," lsp-command-map)
+
+#+END_SRC
+
+** Other General Binds
+:PROPERTIES:
+:ID:       02f11a09-e7fd-4f1c-aa4e-3a92d5b3fa17
+:END:
+	#+BEGIN_SRC emacs-lisp
+		(general-define-key
+		 "M-f" 'counsel-find-file
+		 "M-b" 'counsel-buffer-or-recentf)
+		(general-define-key
+		 :prefix "C-c"
+		 :keymaps '(org-mode-map)
+		 "q" 'org-present-quit
+		 "p" 'org-present
+		 "s" 'my/org-present-start
+		 "e" 'my/org-present-end )
+	#+END_SRC
 * Evil
 :PROPERTIES:
 :ID:       4224925b-76f3-435b-b48b-601f2ac6cbbb
@@ -526,21 +663,17 @@ Gave up <2023-11-19 Sun>
 :ID:       0a7e9959-ad62-4831-8d94-c66ed6de54ff
 :END:
 #+BEGIN_SRC emacs-lisp
-  (use-package eglot
-    :command eglot
-    :straight t)
-
   (use-package eglot-fsharp
     :mode "\\.fs$"
     :config
     (setq inferior-fsharp-program "dotnet fsi --readline-"))
 
-  (use-package consult-eglot)
+  ;; (use-package consult-eglot)
 
-  (use-package projectile
-    :config
-    (projectile-mode +1)
-    :bind (:map projectile-mode-map))
+  ;; (use-package projectile
+  ;;   :config
+  ;;   (projectile-mode +1)
+  ;;   :bind (:map projectile-mode-map))
   (use-package clang-format
     :init
     (setq clang-format-style "file")
@@ -619,7 +752,7 @@ Gave up <2023-11-19 Sun>
 
   (use-package guix)
 
-  (add-to-list 'Info-directory-list "/home/sohamg/.config/guix/current/share/info/")
+  (add-to-list 'Info-additional-directory-list "/home/sohamg/.config/guix/current/share/info/")
 
 #+END_SRC
 
@@ -1002,134 +1135,6 @@ Gave up <2023-11-19 Sun>
 :ID:       6310193f-372c-47e2-9c19-e5d990ad46f6
 :END:
 Quality of life key binds.
-** Setup General
-:PROPERTIES:
-:ID:       a9708d7d-729a-4bb6-a20d-86542a01810a
-:END:
-#+BEGIN_SRC emacs-lisp
-  (use-package general
-      :demand t
-  	:config
-  	(general-create-definer sg/leader-bind
-  		:prefix "SPC"))
-#+END_SRC
-** General leader map
-:PROPERTIES:
-:ID:       c10977c6-2fce-40c0-bceb-13710027ba80
-:END:
-#+BEGIN_SRC emacs-lisp
-  (sg/leader-bind
-  	:keymaps '(normal emacs visual)
-  	"c" '(:ignore t :which-key "Configs")
-  	"cc" '(sg/edit-config :wk "Edit config file")
-  	"cn" '(sg/edit-nix-config :wk "Nix System Config")
-  	"cm" '(sg/show-mu4e-shortcuts :which-key "Mu4e evil help")
-  	"m" '(:ignore t :wk "Email")
-  	"mm" 'mu4e
-  	"s" '(:ignore t :wk "Shortcuts")
-  	"st" '(vterm :wk "VTerm")
-  	"si" '(indent-region :wk "Indent Region")
-      "ss" 'yas-insert-snippet
-      "sn" 'yas-new-snippet
-  	"p" '(projectile-command-map :wk "Projectile")
-  	"w" '(:ignore t :wk "Window Management")
-  	"wl" 'evil-window-right
-  	"wh" 'evil-window-left
-  	"wj" 'evil-window-down
-  	"wk" 'evil-window-up
-  	"wL" 'evil-window-vsplit
-  	"wJ" 'evil-window-split
-  	"wd" 'evil-window-delete
-  	"wD" 'delete-other-windows
-  	"g" '(:ignore t :wk "GDB")
-  	"gm" 'gdb-many-windows
-  	"gg" 'gdb
-  	"gb" 'gud-break
-  	"gr" 'gud-run
-  	"gn" 'gud-next
-  	"gs" 'gud-step
-  	"gd" 'dap-hydra
-  	"l" '(display-line-numbers-mode :wk Toggle Line numbers)
-  	"o" '(:ignore t :wk "Org Globals")
-  	"oo" '(org-capture :wk "Capture")
-  	"oa" '(org-agenda :wk "Agenda")
-  	"oN" '(my/make-note :wk "Create New Note File")
-  	"ot" '(my/capture-todo :wk "Create TODO")
-  	"on" '(my/capture-note :wk "Create Note")
-  	"o." '(my/reagenda :wk "Refresh org-agenda-files")
-  	"op" '(:ignore t :wk "Org Present")
-  	"b" '(:ignore t :wk "Buffers")
-  	"bb" 'consult-buffer
-  	"SPC" 'clang-format-buffer
-  	"r" '(:ignore t :wk "Registers")
-      "[" '(smartparens-mode-map :wk "Smart Parens")
-  	"rj" 'jump-to-register
-  	"ri" 'insert-register
-  	"rp" 'point-to-register
-  	"ry" 'counsel-yank-pop
-  	"rm" 'counsel-mark-ring
-  	"C" 'compile
-  	"e" '(:ignore t :wk "Eglot")
-  	"ea" 'eglot-code-actions
-  	"ef" 'eglot-format-buffer
-  	"er" 'eglot-rename
-      "." 'org-timestamp)
-  		;;; I guess dap-mode is really just better...
-  ;; (defhydra hydra-debug (global-map "<f2>")
-  ;;   "Make Emacs GDB less annoying"
-  ;;   ("s" gud-step "step")
-  ;;   ("n" gud-next "next")
-  ;;   ("u" gud-up "up")
-  ;;   ("d" gud-down "down")
-  ;;   ("f" gud-finish "finish"))
-  ;; (general-def 'normal lsp-mode :definer 'minor-mode
-  ;;   "SPC ," lsp-command-map)
-
-#+END_SRC
-
-** Other General Binds
-:PROPERTIES:
-:ID:       02f11a09-e7fd-4f1c-aa4e-3a92d5b3fa17
-:END:
-	#+BEGIN_SRC emacs-lisp
-		(general-define-key
-		 "M-f" 'counsel-find-file
-		 "M-b" 'counsel-buffer-or-recentf)
-		(general-define-key
-		 :prefix "C-c"
-		 :keymaps '(org-mode-map)
-		 "q" 'org-present-quit
-		 "p" 'org-present
-		 "s" 'my/org-present-start
-		 "e" 'my/org-present-end )
-	#+END_SRC
-** Utility functions
-:PROPERTIES:
-:ID:       a3f62c22-2f29-401b-90c9-f13e1940b3e8
-:END:
-#+BEGIN_SRC emacs-lisp
-	(defun my/capture-todo ()
-		(interactive)
-		(org-capture nil "t"))
-	(defun my/capture-note ()
-		(interactive)
-		(org-capture nil "n"))
-	(defun sg/edit-config ()
-		"Edit configuration.org"
-		(interactive)
-		(sg/edit-file "~/.emacs.d/configuration.org"))
-	(defun sg/edit-nix-config ()
-		"Edit configuration.org"
-		(interactive)
-		(sg/edit-file "~/nixcfg/t495/thinkpad.nix"))
-	(defun sg/show-mu4e-shortcuts ()
-		"Show Help for Evil collection for Mu4e"
-		(interactive)
-		(with-output-to-temp-buffer "tmphlp"
-			(set-buffer "tmphlp")
-			(insert-file-contents "~/.config/emacs/mu4ehelp.org")))
-#+END_SRC
-
 * No byte compile
 #+BEGIN_SRC emacs-lisp
 ;; Local Variables:
