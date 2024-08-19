@@ -873,7 +873,7 @@ Gave up <2023-11-19 Sun>
     (add-to-list
      'org-src-lang-modes '("plantuml" . plantuml))
     (setq org-latex-pdf-process
-          (list "latexmk -auxdir=%o/.aux -f -pdf %f -output-directory=%o"))
+          (list "latexmk -auxdir=%o/.aux -lualatex -f -pdf %f -output-directory=%o"))
 
     (setq org-directory (expand-file-name "~/Nextcloud/Notes")
   	    org-default-notes-file (concat org-directory "/main.org")
