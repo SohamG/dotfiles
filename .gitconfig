@@ -1,7 +1,7 @@
 [user]
 	name = Soham S Gumaste
 	email = sgumas2@uic.edu
-#	signingkey = 6A267442
+	signingkey = E7BAA5F8401F940770C8DB421093EC43D8F0CADC 
 [init]
 	defaultBranch = main
 [commit]
