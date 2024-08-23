@@ -117,7 +117,6 @@
  '(highlight-indent-guides-method 'bitmap)
  '(initial-scratch-message "Scratch Bufferino lol\12")
  '(ispell-alternate-dictionary "/home/sohamg/.nix-profile/lib/aspell/en_US.multi")
- '(ispell-local-dictionary "~/.nix-profile/lib/aspell/")
  '(mail-sources '((maildir :path "~/Maildir/")))
  '(make-backup-files nil)
  '(mu4e-bookmarks
@@ -143,25 +142,10 @@
        (org-overriding-columns-format "%25ITEM %TODO")))))
  '(org-agenda-todo-ignore-with-date t)
  '(org-deadline-warning-days 3)
- '(package-selected-packages
-   '(xcscope p4_16-mode p4lang-mode quelpa-use-package vagrant-tramp p4 eglot-java
-             go-mode all-the-icons evil-surround merlin-company editorconfig
-             dune tuareg typescript-mode lsp-mode yasnippet vertico
-             tree-sitter-langs svelte-mode pdf-tools web-mode ox-rss eglot evil
-             company hydra dap-mode consult-eglot eglot-fsharp plantuml-mode
-             fsharp-mode undo-tree slime rainbow-delimiters
-             highlight-indentation zig-mode use-package emmet-mode
-             auto-package-update spinner writeroom-mode nyan-mode which-key
-             envrc org-roam marginalia clang-format org-contrib lsp-ui auctex
-             gnuplot org-bullets emacsql-sqlite3 evil-org frames-only-mode
-             ac-geiser nix-mode yaml-mode orderless dockerfile-mode
-             command-log-mode general fira-code-mode projectile rust-mode
-             yasnippet-snippets evil-nerd-commenter emojify deft counsel
-             smartparens minions notmuch eterm-256color company-box magit
-             geiser-guile consult evil-collection wc-mode org-present
-             evil-paredit lsp-tailwindcss company-shell doom-themes))
+ '(package-selected-packages nil)
  '(plantuml-jar-path
    "/nix/store/yzjplznj8n02c789npiflcyzs45q3kri-plantuml-1.2022.5/lib/plantuml.jar")
+ '(safe-local-variable-directories '("/home/sohamg/.emacs.d/straight/repos/org-roam/"))
  '(safe-local-variable-values
    '((geiser-scheme-implementation . "guix repl")
      (eval progn (require 'lisp-mode)
@@ -209,8 +193,4 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :extend nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight regular :height 120 :width normal :foundry "CTDB" :family "Fira Code"))))
- '(bold ((t nil)))
- '(italic ((t (:underline t :slant oblique :weight normal :height 1.3 :width extra-expanded :family "default"))))
- '(org-verbatim ((t (:foreground "#50fa7b" :height 1.3))))
- '(whitespace-newline ((t (:foreground "#565761" :weight ultra-light :height 0.2)))))
+ )

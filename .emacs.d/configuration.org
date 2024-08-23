@@ -3,11 +3,11 @@
 #+PROPERTY: header-args:emacs-lisp :tangle init.el
 
 * Package Management
-** =UNUSED= Setup package management.
+** Setup package management.
 :PROPERTIES:
 :ID:       75632330-7091-4080-9c71-cbf7b137c1d3
 :END:
-#+BEGIN_SRC emacs-lisp :tangle nil
+#+BEGIN_SRC emacs-lisp
   ;; Initialize package sources
   (require 'package)
   (setq package-archives '(("melpa" . "https://melpa.org/packages/")
@@ -26,15 +26,14 @@
     (setq auto-package-update-delete-old-versions t)
     (setq auto-package-update-hide-results t)
     (auto-package-update-maybe))
-  (use-package quelpa)
-  (straight-use-package 'org)
+  (setq use-package-always-ensure t)
 #+END_SRC
 
 ** Straight
 :PROPERTIES:
 :ID:       cef63205-4ff8-4af7-9a5f-062ba8a1e256
 :END:
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle nil
   ;; SPDX-License-Identifier: MIT
   (setq straight-use-package-by-default t)
   (defvar bootstrap-version)
@@ -53,6 +52,10 @@
   ;; Not having this makes Emacs load the builtin outdated org,
   ;; leading to the newer org from straight panicking.
   (straight-use-package 'org)
+  (straight-use-package 'auctex)
+
+  (with-eval-after-load 'org
+    (my/setup-org))
 
   (setq use-package-always-ensure t)
 
@@ -283,67 +286,66 @@ Only Ivy is currently enabled.
 This region is some basic/sanity check settings.
 Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
 #+BEGIN_SRC emacs-lisp
-  (use-package emacs
-    :init
+  (setq inhibit-startup-message t)
+  (scroll-bar-mode -1) ; Disable visible scrollbar
+  (tool-bar-mode -1) ;
+  (tooltip-mode -1) ; Disable tooltips
+  (set-fringe-mode 10) ; Give some breathing room
+  (menu-bar-mode -1) ; Disable the menu bar
+  (line-number-mode 1)
 
-    (setq inhibit-startup-message t)
-    (scroll-bar-mode -1) ; Disable visible scrollbar
-    (tool-bar-mode -1) ;
-    (tooltip-mode -1) ; Disable tooltips
-    (set-fringe-mode 10) ; Give some breathing room
-    (menu-bar-mode -1) ; Disable the menu bar
-    (line-number-mode 1)
+  (setq my/monofont "Fira Code"
+  		my/varfont "Monocraft Nerd Font")
 
-    (setq my/monofont "Fira Code"
-    		my/varfont "Monocraft Nerd Font")
+  (defun my/do-fonts () "fonts" 
+  	   (display-line-numbers-mode 1)
+  	   (setq display-line-numbers 'relative)
+  	   (global-display-fill-column-indicator-mode 1)
+  	   (set-face-attribute 'default nil :font "Fira Code"
+  						   :height 130 :weight 'medium)
+  	   (set-face-attribute 'variable-pitch nil :font my/varfont 
+  						   :height 130))
+  ;; It is important to set some stuff AFTER
+  ;; the first frame has been made.
+  ;; These settings dont work in the server context.
+  (add-hook 'server-after-make-frame-hook
+  			#'my/do-fonts)
+  (my/do-fonts)
+  ;; Set up the visible bell
+  (setq visible-bell t)
+  ;; Make ESC quit prompts
+  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+  ;; (global-set-key (kbd "C-x C-b") 'ibuffer)
+  (savehist-mode 1)
+  (setq use-dialog-box nil)
+  (global-auto-revert-mode 1)
+  (setq user-mail-address "sohamg2@gmail.com")
+  ;; (setq lsp-prefer-flymake nil)
+  (auto-save-visited-mode t)
+  (setq make-backup-files nil)
+  (setq help-window-select t)
+  (tab-bar-mode 1)
+  (transient-mark-mode -1)
+  ;; Silence compiler warnings as they can be pretty disruptive
+  (setq native-comp-async-report-warnings-errors nil)
 
-    ;; It is important to set some stuff AFTER
-    ;; the first frame has been made.
-    ;; These settings dont work in the server context.
-    (add-hook 'server-after-make-frame-hook
-    			#'(lambda nil
-    				(display-line-numbers-mode 1)
-    				(setq display-line-numbers 'relative)
-    				(global-display-fill-column-indicator-mode 1)
-    				(set-face-attribute 'default nil :font "Fira Code"
-    									:height 130 :weight 'medium)
-    				(set-face-attribute 'variable-pitch nil :font my/varfont 
-    									:height 130)))
-    ;; Set up the visible bell
-    (setq visible-bell t)
-    ;; Make ESC quit prompts
-    (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-    ;; (global-set-key (kbd "C-x C-b") 'ibuffer)
-    (savehist-mode 1)
-    (setq use-dialog-box nil)
-    (global-auto-revert-mode 1)
-    (setq user-mail-address "sohamg2@gmail.com")
-    ;; (setq lsp-prefer-flymake nil)
-    (auto-save-visited-mode t)
-    (setq make-backup-files nil)
-    (setq help-window-select t)
-    (tab-bar-mode 1)
-    (transient-mark-mode -1)
-    ;; Silence compiler warnings as they can be pretty disruptive
-    (setq native-comp-async-report-warnings-errors nil)
+  ;; Set the right directory to store the native comp cache
+  (add-to-list 'native-comp-eln-load-path
+  			   (expand-file-name "eln-cache/" user-emacs-directory))
 
-    ;; Set the right directory to store the native comp cache
-    (add-to-list 'native-comp-eln-load-path
-    			   (expand-file-name "eln-cache/" user-emacs-directory))
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (load custom-file)
+  ;; Stop annoying pop up of compile command
+  (add-to-list 'same-window-buffer-names "*compilation*")
 
-    (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-    (load custom-file)
-    ;; Stop annoying pop up of compile command
-    (add-to-list 'same-window-buffer-names "*compilation*")
-
-    (setq-default indent-tabs-mode nil)
+  (setq-default indent-tabs-mode nil)
 
 
-    (global-unset-key (kbd "C-c C-b")))
+  (global-unset-key (kbd "C-c C-b"))
 
-    ;; (add-hook 'image-mode-new-window-functions (lambda (&optional _)
-  	;; 										   (message "Ran image mode hook")
-  	;; 										   (setq-local inhibit-eval-during-redisplay t))))
+  ;; (add-hook 'image-mode-new-window-functions (lambda (&optional _)
+  ;; 										   (message "Ran image mode hook")
+  ;; 										   (setq-local inhibit-eval-during-redisplay t))))
 #+END_SRC
 
 * General Packages
@@ -378,16 +380,16 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
        (setq plantuml-default-exec-mode 'executable))
 
 
-     (use-package spdx
-       :ensure t
-       :straight (:host github :repo "condy0919/spdx.el")
-       :bind (:map prog-mode-map
-              ("C-c i l" . spdx-insert-spdx))
-       :custom
-       (spdx-copyright-holder 'auto)
-       (spdx-project-detection 'auto))
+     ;; (use-package spdx
+     ;;   :ensure t
+     ;;   :straight (:host github :repo "condy0919/spdx.el")
+     ;;   :bind (:map prog-mode-map
+     ;;          ("C-c i l" . spdx-insert-spdx))
+     ;;   :custom
+     ;;   (spdx-copyright-holder 'auto)
+     ;;   (spdx-project-detection 'auto))
 
-     (use-package license-snippets)
+     ;; (use-package license-snippets)
 #+END_SRC
 
 #+RESULTS:
@@ -467,17 +469,18 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
 :END:
 #+BEGIN_SRC emacs-lisp
   (use-package general
-      :demand t
-  	:config
-  	(general-create-definer sg/leader-bind
-  		:prefix "SPC"))
+    :demand t
+    :config
+    (general-create-definer sg/leader-bind
+  		                  :prefix "SPC")
+    (my/general-setup))
 #+END_SRC
 ** General leader map
 :PROPERTIES:
 :ID:       c10977c6-2fce-40c0-bceb-13710027ba80
 :END:
 #+BEGIN_SRC emacs-lisp
-  (sg/leader-bind
+  (defun my/general-setup () (sg/leader-bind
   	:keymaps '(normal emacs visual)
   	"c" '(:ignore t :which-key "Configs")
   	"cc" '(sg/edit-config :wk "Edit config file")
@@ -517,6 +520,7 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
   	"on" '(my/capture-note :wk "Create Note")
   	"o." '(my/reagenda :wk "Refresh org-agenda-files")
   	"op" '(:ignore t :wk "Org Present")
+  	"od" '(org-roam-dailies-map :wk "Org Roam daily")
   	"b" '(:ignore t :wk "Buffers")
   	;; "bb" 'consult-buffer
   	"SPC" 'clang-format-buffer
@@ -535,7 +539,7 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
       "." 'org-timestamp
       "f" '(:ignore t :wk "Flymake")
       "ff" 'flymake-goto-next-error
-      "fw" 'flymake-goto-diagnostic)
+      "fw" 'flymake-goto-diagnostic))
   		;;; I guess dap-mode is really just better...
   ;; (defhydra hydra-debug (global-map "<f2>")
   ;;   "Make Emacs GDB less annoying"
@@ -607,7 +611,7 @@ Embrace VIM.
 #+BEGIN_SRC emacs-lisp
   (use-package mu4e
     :command mu4e
-    :straight nil
+    :ensure nil
     :init
     (setq send-mail-function 'sendmail-send-it)
     (setq mu4e-change-filenames-when-moving t)
@@ -858,22 +862,19 @@ Gave up <2023-11-19 Sun>
 #+BEGIN_SRC emacs-lisp
   (use-package cdlatex)
 
-  (use-package org
-    :defines org-capture-templates
-    :straight
-    :hook (org-mode . org-indent-mode)
-    :init
+  (defun my/setup-org () "Setup org mode"
+    (require 'org)
     (setq org-hide-leading-stars t)
     (setq org-startup-with-inline-images t)
     (setq  org-log-into-drawer t)
     (setq org-log-done 'time)
     (setq org-export-backends '(ascii beamer html texinfo latex))
-    (setq  org-bullets-bullet-list '("◉" "◎" "○" "►" "◇""♠" ))
+    ;; (setq  org-bullets-bullet-list '("◉" "◎" "○" "►" "◇""♠" ))
     (setq org-plantuml-exec-mode 'plantuml)
     (add-to-list
      'org-src-lang-modes '("plantuml" . plantuml))
     (setq org-latex-pdf-process
-          (list "latexmk -auxdir=%o/.aux -lualatex -f -pdf %f -output-directory=%o"))
+          (list "latexmk -auxdir=%o/.aux -f -pdflua %f -output-directory=%o"))
 
     (setq org-directory (expand-file-name "~/Nextcloud/Notes")
   	    org-default-notes-file (concat org-directory "/main.org")
@@ -887,8 +888,7 @@ Gave up <2023-11-19 Sun>
   	    org-id-link-to-org-use-id t
   	    org-refile-targets '((nil :maxlevel . 3))
   	    org-agenda-files (list org-default-notes-file))
-    :custom
-    (org-todo-keyword-faces
+    (setq org-todo-keyword-faces
      '(("TODO" . org-warning)
        ("IN-PROG" . "green")
        ("DONE" . "black")
@@ -968,35 +968,49 @@ Gave up <2023-11-19 Sun>
 #+RESULTS:
 : deft
 
-** =UNUSED= Use Org-Roam - Note taking/mind mapping system
+***  Use Org-Roam - Note taking/mind mapping system
 :PROPERTIES:
 :ID:       6cbd5374-a7fa-4a89-ad08-0a182e574a0a
 :END:
-#+BEGIN_SRC emacs-lisp :tangle nil
-  (use-package emacsql-sqlite3)
+#+BEGIN_SRC emacs-lisp
   (use-package org-roam
-    :after emacsql-sqlite3
+    :custom
+    (org-roam-completion-everywhere t)
+    (org-roam-directory "~/Nextcloud/org-roam/")
+    (org-roam-capture-templates '(("d" "default" plain "%?"
+                                   :target (file+head "${slug}.org.gpg"
+                                                      "#+title: ${title}\n")
+                                   :unnarrowed t)))
+    :bind (("C-c o l" . org-roam-buffer-toggle)
+           ("C-c o f" . org-roam-node-find)
+           ("C-c o i" . org-roam-node-insert))
+    :bind-keymap ("C-c o d" . org-roam-dailies-map)
+
     :config
-    (setq org-roam-directory "~/Notes")
-    (setq org-roam-database-connector 'sqlite3)
-    (org-roam-db-autosync-mode)
-    (setq org-roam-capture-templates
-	  '(("m" "main" plain
-	     "%?"
-	     :if-new (file+head "main/${slug}.org"
-				"#+title: ${title}\n")
-	     :immediate-finish t
-	     :unnarrowed t)
-	    ("r" "reference" plain "%?"
-	     :if-new
-	     (file+head "reference/${title}.org" "#+title: ${title}\n")
-	     :immediate-finish t
-	     :unnarrowed t)
-	    ("a" "article" plain "%?"
-	     :if-new
-	     (file+head "articles/${title}.org" "#+title: ${title}\n#+filetags: :article:\n")
-	     :immediate-finish t
-	     :unnarrowed t))))
+    (org-roam-db-autosync-enable))
+  ;; (use-package org-roam
+  ;;   :after emacsql-sqlite3
+  ;;   :config
+  ;;   (setq org-roam-directory "~/Notes")
+  ;;   (setq org-roam-database-connector 'sqlite3)
+  ;;   (org-roam-db-autosync-mode)
+  ;;   (setq org-roam-capture-templates
+  ;;     '(("m" "main" plain
+  ;;        "%?"
+  ;;        :if-new (file+head "main/${slug}.org"
+  ;;   			"#+title: ${title}\n")
+  ;;        :immediate-finish t
+  ;;        :unnarrowed t)
+  ;;       ("r" "reference" plain "%?"
+  ;;        :if-new
+  ;;        (file+head "reference/${title}.org" "#+title: ${title}\n")
+  ;;        :immediate-finish t
+  ;;        :unnarrowed t)
+  ;;       ("a" "article" plain "%?"
+  ;;        :if-new
+  ;;        (file+head "articles/${title}.org" "#+title: ${title}\n#+filetags: :article:\n")
+  ;;        :immediate-finish t
+  ;;        :unnarrowed t))))
 
 #+END_SRC 
 
