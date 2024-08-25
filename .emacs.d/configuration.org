@@ -29,7 +29,7 @@
   (setq use-package-always-ensure t)
 #+END_SRC
 
-** Straight
+** =Unused= =Straight
 :PROPERTIES:
 :ID:       cef63205-4ff8-4af7-9a5f-062ba8a1e256
 :END:
@@ -294,17 +294,17 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
   (menu-bar-mode -1) ; Disable the menu bar
   (line-number-mode 1)
 
-  (setq my/monofont "Fira Code"
+  (setq my/monofont "Inter"
   		my/varfont "Monocraft Nerd Font")
 
   (defun my/do-fonts () "fonts" 
   	   (display-line-numbers-mode 1)
   	   (setq display-line-numbers 'relative)
-  	   (global-display-fill-column-indicator-mode 1)
-  	   (set-face-attribute 'default nil :font "Fira Code"
-  						   :height 130 :weight 'medium)
-  	   (set-face-attribute 'variable-pitch nil :font my/varfont 
-  						   :height 130))
+  	   (global-display-fill-column-indicator-mode 1))
+  	   ;;(set-face-attribute 'default nil :font "Fira Code"
+  ;;						   :height 130 :weight 'medium)
+  ;;	   (set-face-attribute 'variable-pitch nil :font my/varfont 
+  ;;						   :height 130))
   ;; It is important to set some stuff AFTER
   ;; the first frame has been made.
   ;; These settings dont work in the server context.
@@ -463,24 +463,14 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
     	(insert-file-contents "~/.config/emacs/mu4ehelp.org")))
 #+END_SRC
 
-** Setup General
-:PROPERTIES:
-:ID:       a9708d7d-729a-4bb6-a20d-86542a01810a
-:END:
-#+BEGIN_SRC emacs-lisp
-  (use-package general
-    :demand t
-    :config
-    (general-create-definer sg/leader-bind
-  		                  :prefix "SPC")
-    (my/general-setup))
-#+END_SRC
 ** General leader map
 :PROPERTIES:
 :ID:       c10977c6-2fce-40c0-bceb-13710027ba80
 :END:
 #+BEGIN_SRC emacs-lisp
-  (defun my/general-setup () (sg/leader-bind
+  (defun my/general-setup ()
+    (require 'general)
+    (sg/leader-bind
   	:keymaps '(normal emacs visual)
   	"c" '(:ignore t :which-key "Configs")
   	"cc" '(sg/edit-config :wk "Edit config file")
@@ -553,6 +543,20 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
 
 #+END_SRC
 
+** Setup General
+:PROPERTIES:
+:ID:       a9708d7d-729a-4bb6-a20d-86542a01810a
+:END:
+#+BEGIN_SRC emacs-lisp
+  (use-package general
+    :demand t
+    :config
+    (general-create-definer sg/leader-bind
+  		                  :prefix "SPC")
+   )
+
+  (with-eval-after-load 'general (my/general-setup))
+#+END_SRC
 ** Other General Binds
 :PROPERTIES:
 :ID:       02f11a09-e7fd-4f1c-aa4e-3a92d5b3fa17
@@ -862,8 +866,8 @@ Gave up <2023-11-19 Sun>
 #+BEGIN_SRC emacs-lisp
   (use-package cdlatex)
 
-  (defun my/setup-org () "Setup org mode"
-    (require 'org)
+  (use-package org
+    :config
     (setq org-hide-leading-stars t)
     (setq org-startup-with-inline-images t)
     (setq  org-log-into-drawer t)
@@ -978,8 +982,8 @@ Gave up <2023-11-19 Sun>
     (org-roam-completion-everywhere t)
     (org-roam-directory "~/Nextcloud/org-roam/")
     (org-roam-capture-templates '(("d" "default" plain "%?"
-                                   :target (file+head "${slug}.org.gpg"
-                                                      "#+title: ${title}\n")
+                                   :target (file+head "roam_${slug}.org.gpg"
+                                                      "#+title: ${title}\n %<%T %d>\n")
                                    :unnarrowed t)))
     :bind (("C-c o l" . org-roam-buffer-toggle)
            ("C-c o f" . org-roam-node-find)
@@ -987,6 +991,14 @@ Gave up <2023-11-19 Sun>
     :bind-keymap ("C-c o d" . org-roam-dailies-map)
 
     :config
+    (require 'org-roam-dailies)
+    (setq org-roam-dailies-directory "daily/")
+
+    (setq org-roam-dailies-capture-templates
+          '(("d" "default" entry
+             "* %?"
+             :target (file+head "%<%Y-%m-%d (%a-%b-%y)>.org.gpg"
+                                "#+title: Journal for %<%Y-%m-%d> %<%T %d>\n"))))
     (org-roam-db-autosync-enable))
   ;; (use-package org-roam
   ;;   :after emacsql-sqlite3

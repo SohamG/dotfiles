@@ -145,7 +145,9 @@
  '(package-selected-packages nil)
  '(plantuml-jar-path
    "/nix/store/yzjplznj8n02c789npiflcyzs45q3kri-plantuml-1.2022.5/lib/plantuml.jar")
- '(safe-local-variable-directories '("/home/sohamg/.emacs.d/straight/repos/org-roam/"))
+ '(safe-local-variable-directories
+   '("/home/sohamg/Nextcloud/org-roam/daily/" "/home/sohamg/Nextcloud/org-roam/"
+     "/home/sohamg/.emacs.d/straight/repos/org-roam/"))
  '(safe-local-variable-values
    '((geiser-scheme-implementation . "guix repl")
      (eval progn (require 'lisp-mode)
