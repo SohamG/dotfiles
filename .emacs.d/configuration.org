@@ -1,5 +1,5 @@
-#+STARTUP: show3levels
 #+TITLE: Emacs Configuration
+#+STARTUP: show3levels
 #+PROPERTY: header-args:emacs-lisp :tangle init.el
 
 * Package Management
@@ -266,7 +266,7 @@ Only Ivy is currently enabled.
     (use-package all-the-icons)
 #+END_SRC
 
-** Fonts
+* Fonts
 :PROPERTIES:
 :ID:       84e0acd1-f58d-4d8f-833b-7f9fe189bdec
 :END:
@@ -277,6 +277,40 @@ Only Ivy is currently enabled.
      ;;     (global-fira-code-mode 1)
      ;;     (setq fira-code-mode-disabled-ligatures '("x")))
      ;; (use-package emojify)
+
+
+     (setq my/monofont "Fira Code"
+     		my/varfont "Monocraft Nerd Font")
+
+     (defun my/do-fonts () "fonts" 
+     	   (display-line-numbers-mode 1)
+     	   (setq display-line-numbers 'relative)
+     	   (global-display-fill-column-indicator-mode 1)
+            (setq use-default-font-for-symbols t)
+     	   (set-fontset-font t 'latin (font-spec  :name my/monofont
+     						   :height 130 :weight 'medium))
+            (set-fontset-font t 'emoji (font-spec :family "Noto Color Emoji"))
+            (set-frame-font "fontset-default"))
+     ;;	   (set-face-attribute 'variable-pitch nil :font my/varfont 
+     ;;						   :height 130))
+     ;; It is important to set some stuff AFTER
+     ;; the first frame has been made.
+     ;; These settings dont work in the server context.
+     (add-hook 'server-after-make-frame-hook
+     			#'my/do-fonts)
+     (my/do-fonts)
+
+
+     (global-prettify-symbols-mode 1)
+
+     (setq-default prettify-symbols-alist
+                   '(("<=" . ?≤)
+                     (">=" . ?≥)
+                     ("==" . ?＝)
+                     ("!=" . ?≠)))
+     (featurep 'cairo)
+
+     (frame-parameter (selected-frame) 'font-backend)
 #+END_SRC
 
 * Startup
@@ -292,25 +326,7 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
   (tooltip-mode -1) ; Disable tooltips
   (set-fringe-mode 10) ; Give some breathing room
   (menu-bar-mode -1) ; Disable the menu bar
-  (line-number-mode 1)
-
-  (setq my/monofont "Inter"
-  		my/varfont "Monocraft Nerd Font")
-
-  (defun my/do-fonts () "fonts" 
-  	   (display-line-numbers-mode 1)
-  	   (setq display-line-numbers 'relative)
-  	   (global-display-fill-column-indicator-mode 1))
-  	   ;;(set-face-attribute 'default nil :font "Fira Code"
-  ;;						   :height 130 :weight 'medium)
-  ;;	   (set-face-attribute 'variable-pitch nil :font my/varfont 
-  ;;						   :height 130))
-  ;; It is important to set some stuff AFTER
-  ;; the first frame has been made.
-  ;; These settings dont work in the server context.
-  (add-hook 'server-after-make-frame-hook
-  			#'my/do-fonts)
-  (my/do-fonts)
+  (setq split-width-threshold 160) ;; Always split vertically
   ;; Set up the visible bell
   (setq visible-bell t)
   ;; Make ESC quit prompts
@@ -324,10 +340,10 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
   (auto-save-visited-mode t)
   (setq make-backup-files nil)
   (setq help-window-select t)
-  (tab-bar-mode 1)
+  (tab-bar-mode -1)
   (transient-mark-mode -1)
   ;; Silence compiler warnings as they can be pretty disruptive
-  (setq native-comp-async-report-warnings-errors nil)
+  ;; (setq native-comp-async-report-warnings-errors nil)
 
   ;; Set the right directory to store the native comp cache
   (add-to-list 'native-comp-eln-load-path
@@ -346,6 +362,8 @@ Note: Only edit with <C-c '> or else Orgmode will screw up the formatting.
   ;; (add-hook 'image-mode-new-window-functions (lambda (&optional _)
   ;; 										   (message "Ran image mode hook")
   ;; 										   (setq-local inhibit-eval-during-redisplay t))))
+
+  (auto-fill-mode 1)
 #+END_SRC
 
 * General Packages
@@ -900,6 +918,8 @@ Gave up <2023-11-19 Sun>
        ("LIMBO" . "brown")))
 
     (add-hook 'org-mode-hook 'org-bullets-mode)
+    (add-hook 'org-mode-hook 'org-indent-mode)
+    (add-hook 'org-mode-hook 'auto-fill-mode)
     (add-hook 'org-mode-hook #'turn-on-org-cdlatex)
 
     (org-babel-do-load-languages
@@ -980,7 +1000,9 @@ Gave up <2023-11-19 Sun>
   (use-package org-roam
     :custom
     (org-roam-completion-everywhere t)
+    (org-roam-graph-executable "~/.nix-profile/bin/dot")
     (org-roam-directory "~/Nextcloud/org-roam/")
+    (org-roam-graph-viewer nil)
     (org-roam-capture-templates '(("d" "default" plain "%?"
                                    :target (file+head "roam_${slug}.org.gpg"
                                                       "#+title: ${title}\n %<%T %d>\n")
@@ -993,12 +1015,12 @@ Gave up <2023-11-19 Sun>
     :config
     (require 'org-roam-dailies)
     (setq org-roam-dailies-directory "daily/")
-
+    (setq org-id-link-to-org-use-id 'create-if-interactive)
     (setq org-roam-dailies-capture-templates
           '(("d" "default" entry
              "* %?"
-             :target (file+head "%<%Y-%m-%d (%a-%b-%y)>.org.gpg"
-                                "#+title: Journal for %<%Y-%m-%d> %<%T %d>\n"))))
+             :target (file+head "%<%Y-%m-%d>.org.gpg"
+                                "#+title: Journal for %<%Y-%m-%d> %<%a>\n"))))
     (org-roam-db-autosync-enable))
   ;; (use-package org-roam
   ;;   :after emacsql-sqlite3

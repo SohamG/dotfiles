@@ -140,6 +140,9 @@
         '(scheduled-up deadline-up todo-state-down time-up))
        (org-agenda-prefix-format "  %?T%?l%?:t%10s%i")
        (org-overriding-columns-format "%25ITEM %TODO")))))
+ '(org-agenda-files
+   '("~/Nextcloud/Notes/fall2024classes.org"
+     "/home/sohamg/Nextcloud/Notes/main.org"))
  '(org-agenda-todo-ignore-with-date t)
  '(org-deadline-warning-days 3)
  '(package-selected-packages nil)
@@ -188,7 +191,7 @@
  '(tab-stop-list '(2 4 6 8))
  '(tab-width 4)
  '(undo-tree-auto-save-history nil)
- '(warning-suppress-log-types '((use-package)))
+ '(warning-suppress-log-types '((emacs) (use-package)))
  '(whitespace-global-modes nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
