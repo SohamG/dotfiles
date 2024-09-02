@@ -153,12 +153,16 @@ cleantex() {
     rm -rf *.aux *.log *.fls 
 }
 
-GUIX_PROFILE="/home/sohamg/.config/guix/current"
-. "$GUIX_PROFILE/etc/profile"
+#GUIX_PROFILE="/home/sohamg/.config/guix/current"
+#. "$GUIX_PROFILE/etc/profile"
 
-prompt_context() {
-#  if [[ "$USER" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
-#    prompt_segment black default "%(!.%{%F{yellow}%}.)$USER"
-#  fi
+shlvl_prompt() {
+    if test $SHLVL = 1; then
+        echo ""
+    else
+        echo "$SHLVL"
+    fi
 }
+
+export RPROMPT="%{$(shlvl_prompt)%}"
 export SHELL=$(realpath $(which zsh))
