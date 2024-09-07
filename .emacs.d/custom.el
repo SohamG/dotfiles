@@ -146,6 +146,8 @@
  '(org-agenda-todo-ignore-with-date t)
  '(org-deadline-warning-days 3)
  '(package-selected-packages nil)
+ '(package-vc-selected-packages
+   '((hare-mode :vc-backend Git :url "https://git.sr.ht/~laumann/hare-mode")))
  '(plantuml-jar-path
    "/nix/store/yzjplznj8n02c789npiflcyzs45q3kri-plantuml-1.2022.5/lib/plantuml.jar")
  '(safe-local-variable-directories

@@ -1,5 +1,5 @@
-#+TITLE: Emacs Configuration
 #+STARTUP: show3levels
+#+TITLE: Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle init.el
 
 * Package Management
@@ -271,35 +271,34 @@ Only Ivy is currently enabled.
 :ID:       84e0acd1-f58d-4d8f-833b-7f9fe189bdec
 :END:
    #+BEGIN_SRC emacs-lisp
-     ;; (use-package fira-code-mode
-     ;;     :hook server-after-make-frame
-     ;;     :config
-     ;;     (global-fira-code-mode 1)
-     ;;     (setq fira-code-mode-disabled-ligatures '("x")))
-     ;; (use-package emojify)
-
-
-     (setq my/monofont "Fira Code"
+     (setq my/monofont "FixedsysExcelsior Nerd Font"
      		my/varfont "Monocraft Nerd Font")
+
+     (create-fontset-from-fontset-spec
+      (font-xlfd-name
+       (font-spec
+        :name my/monofont :foundry "POOP" :size 20
+        :registry "fontset-sg")))
+
+     (set-fontset-font "fontset-sg" 'emoji
+                       (font-spec :family "Noto Color Emoji" :foundry "NONE"))
+     ;; (set-fontset-font "fontset-sg" 'variable-pitch
+     ;;                   (font-spec :name my/varfont))
+
+     (set-fontset-font t nil
+                       (font-spec :family "Noto Color Emoji" :style "Regular" :foundry "NONE"))
 
      (defun my/do-fonts () "fonts" 
      	   (display-line-numbers-mode 1)
      	   (setq display-line-numbers 'relative)
      	   (global-display-fill-column-indicator-mode 1)
-            (setq use-default-font-for-symbols t)
-     	   (set-fontset-font t 'latin (font-spec  :name my/monofont
-     						   :height 130 :weight 'medium))
-            (set-fontset-font t 'emoji (font-spec :family "Noto Color Emoji"))
-            (set-frame-font "fontset-default"))
-     ;;	   (set-face-attribute 'variable-pitch nil :font my/varfont 
-     ;;						   :height 130))
-     ;; It is important to set some stuff AFTER
-     ;; the first frame has been made.
-     ;; These settings dont work in the server context.
+     	   (setq use-default-font-for-symbols t)
+     	   (setq default-frame-alist '((font . "fontset-sg"))))
+            
+     ;; THESE settings dont work in the server context.
      (add-hook 'server-after-make-frame-hook
      			#'my/do-fonts)
      (my/do-fonts)
-
 
      (global-prettify-symbols-mode 1)
 
@@ -308,9 +307,6 @@ Only Ivy is currently enabled.
                      (">=" . ?≥)
                      ("==" . ?＝)
                      ("!=" . ?≠)))
-     (featurep 'cairo)
-
-     (frame-parameter (selected-frame) 'font-backend)
 #+END_SRC
 
 * Startup
@@ -872,6 +868,10 @@ Gave up <2023-11-19 Sun>
     (add-to-list 'tramp-remote-path "~/.nix-profile/bin")
   (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
 
+#+END_SRC
+** Hare
+#+BEGIN_SRC emacs-lisp
+;;(package-vc-install "https://git.sr.ht/~laumann/hare-mode")
 #+END_SRC
 * Org
 :PROPERTIES:
