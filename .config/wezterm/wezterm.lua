@@ -25,6 +25,21 @@ config.visual_bell = {
 config.colors = {
   visual_bell = '#202020',
 }
+local act = wezterm.action
+
+config.mouse_bindings = {
+  -- Scrolling up while holding CTRL increases the font size
+  {
+    event = { Down = { streak = 1, button = { WheelUp = 1 } } },
+    action = act.ScrollByLine(-1),
+  },
+
+  -- Scrolling down while holding CTRL decreases the font size
+  {
+    event = { Down = { streak = 1, button = { WheelDown = 1 } } },
+    action = act.ScrollByLine(1),
+  },
+}
 
 -- and finally, return the configuration to wezterm
 return config

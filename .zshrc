@@ -11,6 +11,9 @@ p10_theme="$HOME/.nix-profile/share/zsh-powerlevel10k/powerlevel10k.zsh-theme"
 source $p10_theme
 source ~/.p10k.zsh 
 
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+#[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
 export AGNOSTER_DISABLE_CONTEXT="1"
 zstyle ':completion:*' completer _complete _ignored _approximate
 zstyle :compinstall filename '/home/sohamg/.zshrc'
@@ -25,8 +28,13 @@ SAVEHIST=1000
 bindkey -v
 # End of lines configured by zsh-newuser-install
 
-export VI_MODE_SET_CURSOR=true
+export VI_MODE_SET_CURSOR="true";
+
+
 bindkey -M viins '\e.' insert-last-word
+bindkey -v "^?" backward-delete-char
+bindkey -v "^[[3~" delete-char
+
 
 setopt no_nullglob
 setopt no_nomatch
@@ -178,5 +186,5 @@ shlvl_prompt() {
 export RPROMPT="%{$(shlvl_prompt)%}"
 export SHELL=$(realpath $(which zsh))
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+alias remacs="systemctl restart --user myemacs"
