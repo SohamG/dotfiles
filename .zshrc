@@ -188,3 +188,5 @@ export SHELL=$(realpath $(which zsh))
 
 
 alias remacs="systemctl restart --user myemacs"
+
+alias spdf="sudo podman run --rm -it --privileged -p 8080:8080 stirlingtools/stirling-pdf:latest"
