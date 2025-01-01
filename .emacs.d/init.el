@@ -306,9 +306,13 @@
 (use-package gptel
   :custom
   (gptel-default-mode 'org-mode)
+  :config
+  (gptel-make-anthropic "Claude Haiku"
+    :stream t
+    :key (funcall (plist-get (nth 0 (auth-source-search :host "anthropic.com")) :secret)))
   :bind (("C-c g g" . gptel)
-	 ("C-c g s" . gptel-send)
-	  ("C-c g a" . gptel-add)))
+         ("C-c g s" . gptel-send)
+         ("C-c g a" . gptel-add)))
 (use-package nix-ts-mode)
 
 (use-package lsp-mode
@@ -321,7 +325,6 @@
   (setq lsp-log-io nil) ; if set to true can cause a performance hit
   (setq lsp-use-plists t)
   (setq lsp-clangd-binary-path (expand-file-name "/home/sohamg/.nix-profile/bin/clangd"))
-  (setq lsp-clients-clangd-executable lsp-clangd-binary-path)
   (setq lsp-keymap-prefix "C-c l"))
 (use-package lsp-ui)
 (use-package flycheck)
@@ -330,7 +333,8 @@
   (which-key-mode))
 
 
-(add-to-list 'org-latex-classes
+(when (boundp 'org-latex-classes)
+  (add-to-list 'org-latex-classes
 	     '("mla"
 	       "\\documentclass[12pt,letterpaper]{article}
 
@@ -351,8 +355,9 @@
   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
   ("\\paragraph{%s}" . "\\paragraph*{%s}")
   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")
-))
+)))
 
+(use-package parinfer-rust-mode)
 
 
 ;; Local Variables:

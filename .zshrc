@@ -172,8 +172,8 @@ cleantex() {
     rm -rf *.aux *.log *.fls 
 }
 
-#GUIX_PROFILE="/home/sohamg/.config/guix/current"
-#. "$GUIX_PROFILE/etc/profile"
+GUIX_PROFILE="/home/sohamg/.config/guix/current"
+. "$GUIX_PROFILE/etc/profile"
 
 shlvl_prompt() {
     if test $SHLVL = 1; then
@@ -190,3 +190,6 @@ export SHELL=$(realpath $(which zsh))
 alias remacs="systemctl restart --user myemacs"
 
 alias spdf="sudo podman run --rm -it --privileged -p 8080:8080 stirlingtools/stirling-pdf:latest"
+
+export LC_ALL=en_US.UTF-8
+export GUIX_LOCPATH=~/.guix-profile/lib/locale/
