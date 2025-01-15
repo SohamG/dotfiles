@@ -172,7 +172,6 @@
   (savehist-mode))
 
 (use-package org
-  :hook auto-fill-mode
   :bind
   (("C-c a" . org-agenda)
   ("C-c t" . org-capture))
@@ -313,6 +312,7 @@
   :bind (("C-c g g" . gptel)
          ("C-c g s" . gptel-send)
          ("C-c g a" . gptel-add)))
+
 (use-package nix-ts-mode)
 
 (use-package lsp-mode
