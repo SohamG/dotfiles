@@ -193,3 +193,4 @@ alias spdf="sudo podman run --rm -it --privileged -p 8080:8080 stirlingtools/sti
 
 export LC_ALL=en_US.UTF-8
 export GUIX_LOCPATH=~/.guix-profile/lib/locale/
+fpath+=~/.zfunc

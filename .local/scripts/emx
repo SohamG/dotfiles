@@ -1,5 +1,3 @@
 #!/bin/sh
 
-choice=$(echo "vanilla\ndefault" | dmenu -p "Emacs: ")
-
-emacs --with-profile=$choice
+exec emacsclient -r "$@"
