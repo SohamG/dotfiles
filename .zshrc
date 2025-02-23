@@ -194,3 +194,21 @@ alias spdf="sudo podman run --rm -it --privileged -p 8080:8080 stirlingtools/sti
 export LC_ALL=en_US.UTF-8
 export GUIX_LOCPATH=~/.guix-profile/lib/locale/
 fpath+=~/.zfunc
+
+isLUHNValid() {
+  local pan="$1"
+  local panlen="${#pan}"
+  local sum=0
+
+  for ((i = panlen - 1; i >= 0; i--)); do
+    local digit="${pan:$i:1}"
+    if (((panlen-i) % 2 == 0)); then
+       #even
+       ((digit*=2))
+       ((${#digit} == 2)) && digit=$((${digit:0:1}+${digit:1:1}))
+    fi
+    ((sum+=digit))
+  done
+
+  ((sum % 10 == 0))
+}

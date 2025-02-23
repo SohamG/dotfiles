@@ -1,3 +1,10 @@
+;;; personal-config --- Soham's Personal config file
+
+
+;;; Commentary:
+;; My personal init file
+
+;;; Code:
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (global-display-line-numbers-mode +1)
@@ -20,7 +27,7 @@
 
 (bind-key (kbd "C-c y") #'yank-from-kill-ring)
 
-(bind-key (kbd "C-k") #'(lambda () (kill-buffer nil)))
+(bind-key (kbd "C-k") #'kill-buffer nil)
 
 ;; Set up package.el to work with MELPA
 (require 'package)
@@ -33,7 +40,8 @@
 ;; Add extensions
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-ts-mode))
-(add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-ts-mode))
+;; (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-ts-mode))
 
 (add-hook 'eshell-mode-hook #'compilation-shell-minor-mode)
 
@@ -52,7 +60,7 @@
 (setq-default fill-column 80)
 
 ;;; Theme
-(load-theme 'leuven t)
+(load-theme 'modus-operandi t)
 
 ;;; Evil
 (use-package evil
@@ -61,7 +69,7 @@
   (setq evil-want-keybinding nil
 	evil-want-integration t)
   :config
-  (evil-set-initial-state 'calc-mode 'emacs) 
+  (evil-set-initial-state 'calc-mode 'emacs)
   (add-to-list 'evil-emacs-state-modes 'calc-mode)
   (add-to-list 'evil-emacs-state-modes 'gnus-group-mode)
   (evil-mode +1))
@@ -91,7 +99,7 @@
 (set-fontset-font "fontset-sg" 'emoji
                   (font-spec :family "Noto Color Emoji" :foundry "NONE"))
 
-(defun my/do-fonts () "fonts"
+(defun my/do-fonts () "Setup fonts after frame."
        (display-line-numbers-mode 1)
        (setq display-line-numbers 'relative)
        (global-display-fill-column-indicator-mode 1)
@@ -107,10 +115,10 @@
 (use-package corfu
   :config
  ;; Enable auto completion and configure quitting
-  (global-corfu-mode)
   (setq tab-always-indent 'complete)
-  (setq corfu-auto t
-	corfu-quit-no-match 'separator))
+  (setq corfu-auto nil
+	corfu-quit-no-match 'separator)
+  (global-corfu-mode))
 
 ;; (use-package company
 ;;   :config
@@ -130,7 +138,6 @@
   ;; used by `completion-at-point'.  The order of the functions matters, the
   ;; first function returning a result wins.  Note that the list of buffer-local
   ;; completion functions takes precedence over the global list.
-  (add-hook 'completion-at-point-functions #'cape-dabbrev)
   (add-hook 'completion-at-point-functions #'cape-file)
   (add-hook 'completion-at-point-functions #'cape-elisp-block)
   ;; (add-hook 'completion-at-point-functions #'cape-history)
@@ -140,7 +147,6 @@
   (advice-add 'eglot-completion-at-point :around #'cape-wrap-noninterruptible)
 )
 
-;; Optionally use the `orderless' completion style.
 (use-package orderless
   :custom
   ;; (orderless-style-dispatchers '(orderless-affix-dispatch))
@@ -255,6 +261,7 @@
   :config
   (add-hook 'calc-mode-hook #'turn-off-evil-mode)
   :defer t)
+
 (use-package eglot
   :ensure nil
   :bind (("C-c e i" . eglot-format-buffer)
@@ -262,21 +269,6 @@
   :config
   (fset #'jsonrpc--log-event #'ignore))
 
-;; (use-package casual-calc
-;;   :ensure t
-;;   :bind (:map
-;;          calc-mode-map
-;;          ("C-o" . casual-calc-tmenu)
-;;          :map
-;;          calc-alg-map
-;;          ("C-o" . casual-calc-tmenu))
-;;   :config
-;;   (add-hook 'calc-mode-hook #'turn-off-evil-mode nil)
-;;   :after (calc))
-
-;; (use-package oauth2
-;;   :ensure nil
-;;   :load-path "/home/sohamg/work/elpa/packages/oauth2/")
 
 (load-file "/home/sohamg/work/elpa/packages/oauth2/oauth2.el")
 
@@ -313,21 +305,28 @@
          ("C-c g s" . gptel-send)
          ("C-c g a" . gptel-add)))
 
-(use-package nix-ts-mode)
+;; (use-package nix-ts-mode)
 
-(use-package lsp-mode
-  :commands lsp
+;; (use-package lsp-mode
+;;   :commands lsp
+;;   :config
+;;   (add-hook 'c-mode-hook 'lsp)
+;;   (add-hook 'c++-mode-hook 'lsp)
+;;   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
+;;   :init
+;;   (setq lsp-log-io nil) ; if set to true can cause a performance hit
+;;   (setq lsp-use-plists t)
+;;   (setq lsp-clangd-binary-path (expand-file-name "/home/sohamg/.nix-profile/bin/clangd"))
+;;   (setq lsp-keymap-prefix "C-c l"))
+;; (use-package lsp-ui)
+
+(use-package flycheck
   :config
-  (add-hook 'c-mode-hook 'lsp)
-  (add-hook 'c++-mode-hook 'lsp)
-  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
-  :init
-  (setq lsp-log-io nil) ; if set to true can cause a performance hit
-  (setq lsp-use-plists t)
-  (setq lsp-clangd-binary-path (expand-file-name "/home/sohamg/.nix-profile/bin/clangd"))
-  (setq lsp-keymap-prefix "C-c l"))
-(use-package lsp-ui)
-(use-package flycheck)
+  (add-hook 'after-init-hook #'global-flycheck-mode))
+(use-package flycheck-rust
+  :config
+  (with-eval-after-load 'rust-mode
+    (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
 (use-package which-key
   :config
   (which-key-mode))
@@ -358,9 +357,25 @@
 )))
 
 (use-package parinfer-rust-mode)
+(use-package eglot
+  :config
+  (add-to-list 'eglot-server-programs
+               '((rust-ts-mode rust-mode) .
+		 ("rustup" "run" "stable" "rust-analyzer" :initializationOptions (:check (:command "clippy"))))))
 
+(use-package auth-source-xoauth2-plugin
+  :vc (:url "https://gitlab.com/manphiz/auth-source-xoauth2-plugin.git"
+	    :branch "main")
+  :config
+  (auth-source-xoauth2-plugin-mode t))
+
+(use-package nix-mode
+  :mode "\\.nix\\'")
+
+(use-package nyan-mode
+  :config
+  (nyan-mode +1))
 
 ;; Local Variables:
 ;; no-byte-compile: t
 ;; End:
-
