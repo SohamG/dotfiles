@@ -19,11 +19,6 @@
 (setq gc-cons-threshold 100000000)
 (setq read-process-output-max (* 1024 1024)) ;; 1mb
 
-(ido-mode -1)
-(ido-everywhere -1)
-(setq ido-enable-flex-matching t)
-(setq ido-create-new-buffer 'always)
-(setq-default confirm-nonexistent-file-or-buffer nil)
 
 (bind-key (kbd "C-c y") #'yank-from-kill-ring)
 
@@ -41,7 +36,7 @@
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-ts-mode))
 ;; (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-ts-mode))
-(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.rs\\'" . rustic-mode))
 
 (add-hook 'eshell-mode-hook #'compilation-shell-minor-mode)
 
@@ -54,7 +49,7 @@
 ;;(setq completion-styles '(flex substring initials partial-completion))
 
 
-(setq backup-directory-alist '((".*" (expand-file-name
+(setq backup-directory-alist `((".*" . ,(expand-file-name
 				      "trash" user-emacs-directory))))
 
 (setq-default fill-column 80)
@@ -112,40 +107,49 @@
 (my/do-fonts)
 
 ;;; New age completion only.
-(use-package corfu
-  :config
- ;; Enable auto completion and configure quitting
-  (setq tab-always-indent 'complete)
-  (setq corfu-auto nil
-	corfu-quit-no-match 'separator)
-  (global-corfu-mode))
-
-;; (use-package company
+;; (use-package corfu
 ;;   :config
-;;   (global-company-mode))
+;;  ;; Enable auto completion and configure quitting
+;;   (setq corfu-auto nil
+;; 	corfu-quit-no-match 'separator)
+;;   (global-corfu-mode))
 
-(use-package cape
-  ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
-  ;; Press C-c p ? to for help.
-  :bind ("C-c p" . cape-prefix-map) ;; Alternative keys: M-p, M-+, ...
-  ;; Alternatively bind Cape commands individually.
-  ;; :bind (("C-c p d" . cape-dabbrev)
-  ;;        ("C-c p h" . cape-history)
-  ;;        ("C-c p f" . cape-file)
-  ;;        ...)
-  :init
-  ;; Add to the global default value of `completion-at-point-functions' which is
-  ;; used by `completion-at-point'.  The order of the functions matters, the
-  ;; first function returning a result wins.  Note that the list of buffer-local
-  ;; completion functions takes precedence over the global list.
-  (add-hook 'completion-at-point-functions #'cape-file)
-  (add-hook 'completion-at-point-functions #'cape-elisp-block)
-  ;; (add-hook 'completion-at-point-functions #'cape-history)
-  ;; ...
+(use-package company
   :config
-  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
-  (advice-add 'eglot-completion-at-point :around #'cape-wrap-noninterruptible)
-)
+  (global-company-mode)
+  (setq tab-always-indent 'complete)
+  (define-key company-active-map
+              (kbd "TAB")
+              #'company-indent-or-complete-common)
+  (define-key company-active-map
+              (kbd "<backtab>")
+              (lambda ()
+                (interactive)
+                (company-complete-common-or-cycle -1)))
+  (bind-key (kbd "M-<tab>") #'company-complete))
+
+;; (use-package cape
+;;   ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
+;;   ;; Press C-c p ? to for help.
+;;   :bind ("C-c p" . cape-prefix-map) ;; Alternative keys: M-p, M-+, ...
+;;   ;; Alternatively bind Cape commands individually.
+;;   ;; :bind (("C-c p d" . cape-dabbrev)
+;;   ;;        ("C-c p h" . cape-history)
+;;   ;;        ("C-c p f" . cape-file)
+;;   ;;        ...)
+;;   :init
+;;   ;; Add to the global default value of `completion-at-point-functions' which is
+;;   ;; used by `completion-at-point'.  The order of the functions matters, the
+;;   ;; first function returning a result wins.  Note that the list of buffer-local
+;;   ;; completion functions takes precedence over the global list.
+;;   (add-hook 'completion-at-point-functions #'cape-file)
+;;   (add-hook 'completion-at-point-functions #'cape-elisp-block)
+;;   ;; (add-hook 'completion-at-point-functions #'cape-history)
+;;   ;; ...
+;;   :config
+;;   (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
+;;   (advice-add 'eglot-completion-at-point :around #'cape-wrap-noninterruptible)
+;; )
 
 (use-package orderless
   :custom
@@ -154,6 +158,10 @@
   (completion-styles '(orderless basic))
   (completion-category-defaults nil)
   (completion-category-overrides '((file (styles partial-completion)))))
+
+(use-package yasnippet
+  :config
+  (yas-global-mode +1))
 
 
 ;;; Magit
@@ -181,6 +189,7 @@
   :bind
   (("C-c a" . org-agenda)
   ("C-c t" . org-capture))
+  :hook auto-fill-mode
   :config
   (setq org-latex-pdf-process
         (list
@@ -262,12 +271,6 @@
   (add-hook 'calc-mode-hook #'turn-off-evil-mode)
   :defer t)
 
-(use-package eglot
-  :ensure nil
-  :bind (("C-c e i" . eglot-format-buffer)
-	 ("C-c e a" . eglot-code-actions))
-  :config
-  (fset #'jsonrpc--log-event #'ignore))
 
 
 (load-file "/home/sohamg/work/elpa/packages/oauth2/oauth2.el")
@@ -307,26 +310,29 @@
 
 ;; (use-package nix-ts-mode)
 
-;; (use-package lsp-mode
-;;   :commands lsp
-;;   :config
-;;   (add-hook 'c-mode-hook 'lsp)
-;;   (add-hook 'c++-mode-hook 'lsp)
-;;   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
-;;   :init
-;;   (setq lsp-log-io nil) ; if set to true can cause a performance hit
-;;   (setq lsp-use-plists t)
-;;   (setq lsp-clangd-binary-path (expand-file-name "/home/sohamg/.nix-profile/bin/clangd"))
-;;   (setq lsp-keymap-prefix "C-c l"))
-;; (use-package lsp-ui)
+(use-package lsp-mode
+  :commands lsp
+  :init
+  (fset 'eglot #'(lambda nil (interactive) (message "FUCK EGLOT")))
+  :config
+  (add-hook 'c-mode-hook 'lsp)
+  (add-hook 'c++-mode-hook 'lsp)
+  (add-hook 'python-mode-hook 'lsp-deferred)
+  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
+  :init
+  (setq lsp-log-io nil) ; if set to true can cause a performance hit
+  (setq lsp-use-plists t)
+  (setq lsp-clangd-binary-path (expand-file-name "/home/sohamg/.nix-profile/bin/clangd"))
+  (setq lsp-keymap-prefix "C-c l"))
+(use-package lsp-ui)
 
 (use-package flycheck
   :config
   (add-hook 'after-init-hook #'global-flycheck-mode))
-(use-package flycheck-rust
-  :config
-  (with-eval-after-load 'rust-mode
-    (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
+;; (use-package flycheck-rust
+;;   :config
+;;   (with-eval-after-load 'rust-mode
+;;     (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
 (use-package which-key
   :config
   (which-key-mode))
@@ -357,11 +363,10 @@
 )))
 
 (use-package parinfer-rust-mode)
-(use-package eglot
-  :config
-  (add-to-list 'eglot-server-programs
-               '((rust-ts-mode rust-mode) .
-		 ("rustup" "run" "stable" "rust-analyzer" :initializationOptions (:check (:command "clippy"))))))
+  ;; :config
+  ;; (add-to-list 'eglot-server-programs
+  ;;              '((rust-ts-mode rust-mode) .
+  ;; 		 ("rustup" "run" "stable" "rust-analyzer" :initializationOptions (:check (:command "clippy"))))))
 
 (use-package auth-source-xoauth2-plugin
   :vc (:url "https://gitlab.com/manphiz/auth-source-xoauth2-plugin.git"
@@ -375,6 +380,17 @@
 (use-package nyan-mode
   :config
   (nyan-mode +1))
+
+(use-package rustic
+  :ensure t
+  :init
+  (setq rust-mode-treesitter-derive t)
+  :config
+  (setq rustic-format-on-save nil)
+  :custom
+  ;; (rustic-analyzer-command
+  ;; 		 '("rustup" "run" "stable" "rust-analyzer" ))
+  (rustic-cargo-use-last-stored-arguments t))
 
 ;; Local Variables:
 ;; no-byte-compile: t

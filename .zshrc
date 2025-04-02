@@ -212,3 +212,11 @@ isLUHNValid() {
 
   ((sum % 10 == 0))
 }
+
+alias -g CLOCK="--builders \"ssh://root@172.29.0.26 x86_64-linux /root/id_acm 12 12 big-parallel\""
+alias -g L="| less"
+alias -g G="| grep -i"
+
+alias s="sudo systemctl"
+alias us="systemctl --user"
+export NIXPKGS_ALLOW_UNFREE=1

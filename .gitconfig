@@ -1,10 +1,22 @@
 [user]
 	name = Soham S Gumaste
 	email = sgumas2@uic.edu
-	signingkey = E7BAA5F8401F940770C8DB421093EC43D8F0CADC 
+	signingkey = ~/.ssh/id_ed25519.pub
 [init]
 	defaultBranch = main
 [commit]
 	gpgSign = true
+
+[gpg]
+	format = ssh
 [safe]
 	directory = /home/sohamg/quads/minvec
+
+[alias]
+    # find duplicate files from root
+    alldupes = !"git ls-tree -r HEAD | cut -c 13- | sort | uniq -D -w 40"
+
+    # find duplicate files from the current folder (can also be root)
+    dupes = !"cd `pwd`/$GIT_PREFIX && git ls-tree -r HEAD | cut -c 13- | sort | uniq -D -w 40"
+[gpg "ssh"]
+	allowedSignersFile = /home/sohamg/.ssh/allowed_signers
