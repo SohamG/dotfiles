@@ -374,6 +374,16 @@
   :config
   (auth-source-xoauth2-plugin-mode t))
 
+(use-package aidermacs
+  :bind ("C-c \\" . aidermacs-transient-menu)
+  :config
+  ;; (setq aider-args '("--model" "claude-3-7-sonnet-latest" "--no-auto-commits"))
+  (setq aidermacs-config-file (expand-file-name "~/.config/aider/aider.yml"))
+  (setenv "ANTHROPIC_API_KEY"
+	  (funcall
+	   (plist-get
+	    (nth 0 (auth-source-search :host "anthropic.com")) :secret))))
+
 (use-package nix-mode
   :mode "\\.nix\\'")
 
