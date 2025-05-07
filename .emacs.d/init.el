@@ -117,10 +117,12 @@
 (use-package company
   :config
   (global-company-mode)
+  ;; (global-set-key (kbd "<tab>") #'company-indent-or-complete-common)
+  (setq company-backends '((company-capf company-dabbrev-code)))
   (setq tab-always-indent 'complete)
-  (define-key company-active-map
-              (kbd "TAB")
-              #'company-indent-or-complete-common)
+  ;; (define-key company-active-map
+  ;;             (kbd "TAB")
+  ;;             #'company-indent-or-complete-common)
   (define-key company-active-map
               (kbd "<backtab>")
               (lambda ()
@@ -301,6 +303,16 @@
   :custom
   (gptel-default-mode 'org-mode)
   :config
+  ;; OpenRouter offers an OpenAI compatible API
+  (gptel-make-openai "OpenRouter"               ;Any name you want
+    :host "openrouter.ai"
+    :endpoint "/api/v1/chat/completions"
+    :stream t
+    :key (funcall
+	   (plist-get
+	    (nth 0 (auth-source-search :host "openrouter.ai")) :secret))
+    :models '(google/gemini-2.5-pro-preview-03-25
+	      google/gemini-2.0-flash-001))
   (gptel-make-anthropic "Claude Haiku"
     :stream t
     :key (funcall (plist-get (nth 0 (auth-source-search :host "anthropic.com")) :secret)))
@@ -310,21 +322,24 @@
 
 ;; (use-package nix-ts-mode)
 
-(use-package lsp-mode
-  :commands lsp
-  :init
-  (fset 'eglot #'(lambda nil (interactive) (message "FUCK EGLOT")))
-  :config
-  (add-hook 'c-mode-hook 'lsp)
-  (add-hook 'c++-mode-hook 'lsp)
-  (add-hook 'python-mode-hook 'lsp-deferred)
-  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
-  :init
-  (setq lsp-log-io nil) ; if set to true can cause a performance hit
-  (setq lsp-use-plists t)
-  (setq lsp-clangd-binary-path (expand-file-name "/home/sohamg/.nix-profile/bin/clangd"))
-  (setq lsp-keymap-prefix "C-c l"))
-(use-package lsp-ui)
+;; (use-package lsp-mode
+;;   :commands lsp
+;;   :init
+;;   (fset 'eglot #'(lambda nil (interactive) (message "FUCK EGLOT")))
+;;   :config
+;;   (add-hook 'c-mode-hook 'lsp)
+;;   (add-hook 'c++-mode-hook 'lsp)
+;;   (add-hook 'python-mode-hook 'lsp-deferred)
+;;   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
+;;   (add-to-list 'lsp-clients-clangd-args "--enable-config")
+;;   :init
+;;   (setq lsp-log-io nil) ; if set to true can cause a performance hit
+;;   (setq lsp-use-plists t)
+;;   (setq lsp-clangd-binary-path (expand-file-name "/home/sohamg/.nix-profile/bin/clangd"))
+;;   (setq lsp-keymap-prefix "C-c l"))
+;; (use-package lsp-ui)
+
+(use-package eglot)
 
 (use-package flycheck
   :config
@@ -382,7 +397,11 @@
   (setenv "ANTHROPIC_API_KEY"
 	  (funcall
 	   (plist-get
-	    (nth 0 (auth-source-search :host "anthropic.com")) :secret))))
+	    (nth 0 (auth-source-search :host "anthropic.com")) :secret)))
+  (setenv "OPENROUTER_API_KEY"
+	  (funcall
+	   (plist-get
+	    (nth 0 (auth-source-search :host "openrouter.ai")) :secret))))
 
 (use-package nix-mode
   :mode "\\.nix\\'")
@@ -401,6 +420,12 @@
   ;; (rustic-analyzer-command
   ;; 		 '("rustup" "run" "stable" "rust-analyzer" ))
   (rustic-cargo-use-last-stored-arguments t))
+
+(use-package vc-fossil
+  ;; Keep from loading unnecessarily at startup.
+  :defer t
+  ;; This allows VC to load vc-fossil when needed.
+  :init (add-to-list 'vc-handled-backends 'Fossil t))
 
 ;; Local Variables:
 ;; no-byte-compile: t

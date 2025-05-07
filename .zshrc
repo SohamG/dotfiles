@@ -220,3 +220,11 @@ alias -g G="| grep -i"
 alias s="sudo systemctl"
 alias us="systemctl --user"
 export NIXPKGS_ALLOW_UNFREE=1
+
+alias k="kubectl"
+ka() {
+    kubectl $@ -A
+}
+ks() {
+    kubectl $@ -n kube-system
+}
