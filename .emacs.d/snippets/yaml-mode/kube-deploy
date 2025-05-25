@@ -1,0 +1,36 @@
+# -*- mode: snippet -*-
+# key: kdeploy
+# name: kube-deploy
+# --
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${1:app-name}
+  namespace: ${2:default}
+  labels:
+    app: ${1:$(yas-text)}
+spec:
+  replicas: ${3:3}
+  selector:
+    matchLabels:
+      app: ${1:$(yas-text)}
+  template:
+    metadata:
+      labels:
+        app: ${1:$(yas-text)}
+    spec:
+      containers:
+      - name: ${1:$(yas-text)}
+        image: ${4:nginx:latest}
+        ports:
+        - containerPort: ${5:80}
+        resources:
+          requests:
+            memory: "${6:64Mi}"
+            cpu: "${7:250m}"
+          limits:
+            memory: "${8:128Mi}"
+            cpu: "${9:500m}"
+---
+$0

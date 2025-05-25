@@ -228,3 +228,11 @@ ka() {
 ks() {
     kubectl $@ -n kube-system
 }
+
+frfr() {
+    if test "$#" -eq 0; then
+	echo "usage: $0 <binary in path>"
+    else
+	realpath $(which $1)
+    fi
+}

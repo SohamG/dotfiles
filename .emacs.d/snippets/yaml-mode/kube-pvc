@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: kube-pvc
+# key: kube-pvc
+# --
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: $1
+  namespace: $2
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: ${3}Gi
+---

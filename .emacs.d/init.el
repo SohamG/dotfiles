@@ -33,12 +33,14 @@
 (require 'use-package-ensure)
 
 ;; Add extensions
-(add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-ts-mode))
-(add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+(add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))
 ;; (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . rustic-mode))
 
 (add-hook 'eshell-mode-hook #'compilation-shell-minor-mode)
+
+(add-to-list 'major-mode-remap-alist '(yaml-ts-mode . yaml-mode))
 
 (setq inhibit-startup-screen t)
 (setq use-package-always-ensure t)
@@ -106,52 +108,93 @@
      	  #'my/do-fonts)
 (my/do-fonts)
 
+;; (use-package company
+;;   :config
+;;   (global-company-mode)
+;;   ;; (global-set-key (kbd "<tab>") #'company-indent-or-complete-common)
+;;   (setq company-backends '((company-capf company-dabbrev-code)))
+;;   (setq tab-always-indent 'complete)
+;;   ;; (define-key company-active-map
+;;   ;;             (kbd "TAB")
+;;   ;;             #'company-indent-or-complete-common)
+;;   (define-key company-active-map
+;;               (kbd "<backtab>")
+;;               (lambda ()
+;;                 (interactive)
+;;                 (company-complete-common-or-cycle -1)))
+;;   (bind-key (kbd "M-<tab>") #'company-complete))
+
 ;;; New age completion only.
-;; (use-package corfu
-;;   :config
-;;  ;; Enable auto completion and configure quitting
-;;   (setq corfu-auto nil
-;; 	corfu-quit-no-match 'separator)
-;;   (global-corfu-mode))
+(use-package corfu
+  ;; TAB-and-Go customizations
+  :init
+  (setq corfu-cycle t)           ;; Enable cycling for `corfu-next/previous'
+  (setq corfu-preselect 'prompt) ;; Always preselect the prompt
+  (setq corfu-auto t)
 
-(use-package company
   :config
-  (global-company-mode)
-  ;; (global-set-key (kbd "<tab>") #'company-indent-or-complete-common)
-  (setq company-backends '((company-capf company-dabbrev-code)))
-  (setq tab-always-indent 'complete)
-  ;; (define-key company-active-map
-  ;;             (kbd "TAB")
-  ;;             #'company-indent-or-complete-common)
-  (define-key company-active-map
-              (kbd "<backtab>")
-              (lambda ()
-                (interactive)
-                (company-complete-common-or-cycle -1)))
-  (bind-key (kbd "M-<tab>") #'company-complete))
+  (add-hook 'eshell-mode-hook (lambda ()
+                              (setq-local corfu-auto nil)
+                              (corfu-mode)))
 
-;; (use-package cape
-;;   ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
-;;   ;; Press C-c p ? to for help.
-;;   :bind ("C-c p" . cape-prefix-map) ;; Alternative keys: M-p, M-+, ...
-;;   ;; Alternatively bind Cape commands individually.
-;;   ;; :bind (("C-c p d" . cape-dabbrev)
-;;   ;;        ("C-c p h" . cape-history)
-;;   ;;        ("C-c p f" . cape-file)
-;;   ;;        ...)
-;;   :init
-;;   ;; Add to the global default value of `completion-at-point-functions' which is
-;;   ;; used by `completion-at-point'.  The order of the functions matters, the
-;;   ;; first function returning a result wins.  Note that the list of buffer-local
-;;   ;; completion functions takes precedence over the global list.
-;;   (add-hook 'completion-at-point-functions #'cape-file)
-;;   (add-hook 'completion-at-point-functions #'cape-elisp-block)
-;;   ;; (add-hook 'completion-at-point-functions #'cape-history)
-;;   ;; ...
-;;   :config
-;;   (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
-;;   (advice-add 'eglot-completion-at-point :around #'cape-wrap-noninterruptible)
-;; )
+  (add-hook 'vterm-mode-hook (lambda ()
+                              (setq-local corfu-auto nil)
+                              (corfu-mode)))
+  ;; Use TAB for cycling, default is `corfu-complete'.
+  ;; :bind
+  ;; (:map corfu-map
+  ;;       ("TAB" . corfu-next)
+  ;;       ([tab] . corfu-next)
+  ;;       ("S-TAB" . corfu-previous)
+  ;;       ([backtab] . corfu-previous))
+
+  (global-corfu-mode))
+
+(use-package vterm
+  :ensure nil
+  :init
+  (setq vterm-timer-delay nil))
+  
+
+(use-package nerd-icons-corfu
+  :after corfu
+  :config
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+
+  ;; Optionally:
+  (setq nerd-icons-corfu-mapping
+	'((array :style "cod" :icon "symbol_array" :face font-lock-type-face)
+          (boolean :style "cod" :icon "symbol_boolean" :face font-lock-builtin-face)
+          ;; You can alternatively specify a function to perform the mapping,
+          ;; use this when knowing the exact completion candidate is important.
+          (file :fn nerd-icons-icon-for-file :face font-lock-string-face)
+          ;; ...
+          (t :style "cod" :icon "code" :face font-lock-warning-face))))
+
+
+(use-package cape
+  ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
+  ;; Press C-c p ? to for help.
+  :bind ("C-c p" . cape-prefix-map) ;; Alternative keys: M-p, M-+, ...
+  ;; Alternatively bind Cape commands individually.
+  ;; :bind (("C-c p d" . cape-dabbrev)
+  ;;        ("C-c p h" . cape-history)
+  ;;        ("C-c p f" . cape-file)
+  ;;        ...)
+  :config
+  ;; Add to the global default value of `completion-at-point-functions' which is
+  ;; used by `completion-at-point'.  The order of the functions matters, the
+  ;; first function returning a result wins.  Note that the list of buffer-local
+  ;; completion functions takes precedence over the global list.
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-elisp-block)
+  (add-hook 'completion-at-point-functions #'cape-history)
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-dict))
+  ;; ...
+  ;; :config
+  ;; (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
+  ;; (advice-add 'eglot-completion-at-point :around #'cape-wrap-noninterruptible))
 
 (use-package orderless
   :custom
@@ -162,9 +205,12 @@
   (completion-category-overrides '((file (styles partial-completion)))))
 
 (use-package yasnippet
+  :bind
+  (("C-c i" . yas-insert-snippet)
+   ("C-c s" . yas-visit-snippet-file))
   :config
+  (setq yas-indent-line nil)
   (yas-global-mode +1))
-
 
 ;;; Magit
 (use-package magit
@@ -212,12 +258,12 @@
         org-id-link-to-org-use-id t
         org-refile-targets '((nil :maxlevel . 3))
         org-agenda-files (list org-default-notes-file))
-    (setq org-todo-keyword-faces
-     '(("TODO" . org-warning)
-       ("IN-PROG" . "green")
-       ("DONE" . "black")
-       ("NEXT" . "yellow")
-       ("LIMBO" . "brown"))))
+  (setq org-todo-keyword-faces
+	'(("TODO" . org-warning)
+	  ("IN-PROG" . "green")
+	  ("DONE" . "black")
+	  ("NEXT" . "yellow")
+	  ("LIMBO" . "brown"))))
 
 (use-package evil-org
   :after org
@@ -393,15 +439,20 @@
   :bind ("C-c \\" . aidermacs-transient-menu)
   :config
   ;; (setq aider-args '("--model" "claude-3-7-sonnet-latest" "--no-auto-commits"))
+;; Enable/disable showing diffs after changes (default: t)
+  (setq aidermacs-show-diff-after-change nil)
   (setq aidermacs-config-file (expand-file-name "~/.config/aider/aider.yml"))
-  (setenv "ANTHROPIC_API_KEY"
-	  (funcall
-	   (plist-get
-	    (nth 0 (auth-source-search :host "anthropic.com")) :secret)))
-  (setenv "OPENROUTER_API_KEY"
-	  (funcall
-	   (plist-get
-	    (nth 0 (auth-source-search :host "openrouter.ai")) :secret))))
+  (add-hook 'aidermacs-before-run-backend-hook
+            (lambda ()
+              (setenv "OPENAI_API_KEY" (password-store-get "code/openai_api_key"))
+	      (setenv "ANTHROPIC_API_KEY"
+		      (funcall
+		       (plist-get
+			(nth 0 (auth-source-search :host "anthropic.com")) :secret)))
+	      (setenv "OPENROUTER_API_KEY"
+		      (funcall
+		       (plist-get
+			(nth 0 (auth-source-search :host "openrouter.ai")) :secret))))))
 
 (use-package nix-mode
   :mode "\\.nix\\'")
@@ -426,6 +477,15 @@
   :defer t
   ;; This allows VC to load vc-fossil when needed.
   :init (add-to-list 'vc-handled-backends 'Fossil t))
+
+;; Email
+(setq send-mail-function 'smtpmail-send-it
+      smtpmail-smtp-server "loveyaml.org"
+      smtpmail-smtp-service 587
+      user-mail-address "sohamg@loveyaml.org"
+      user-full-name "Soham S Gumaste")
+
+
 
 ;; Local Variables:
 ;; no-byte-compile: t

@@ -1,0 +1,18 @@
+# key: kube-ingress
+# name: kube-ingress
+# --
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: $1
+  namespace: $2
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(\`$3\`)  # Replace with your actual domain
+      services:
+        - name: $4
+          port: $5
+
