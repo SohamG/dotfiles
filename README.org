@@ -1,0 +1,29 @@
+#+TITLE: Soham's Personal Dotfiles
+#+AUTHOR: Soham S Gumaste
+
+* Soham's Dotfiles
+
+My custom configs for a bunch of tools. 
+
+** Emacs config
+
+- My from-scratch emacs config is [[file:.emacs.d/init.el][here]].
+- Emacs is my preferred and only +code editor+ way of life. 
+
+** Shell config
+
+- My ZSH config is in [[file:./.zshrc][this file]] however it has overlap with my [[https://github.com/SohamG/nixcfg][Nix configs]].
+- I currently use [[file:./.p10k.zsh][Powerlevel10k]] to style my prompt.
+
+** Miscellaneous Legacy scripts
+- My i3/DWM bar widget scripts are in [[file:./.local/scripts]]
+- Following paths are no longer in use:
+  + .xinitrc (Ew X11)
+  + .symbols
+  + .config/alacritty
+  + .config/nvim (ew neovim)
+  + .config/stumpwm
+  + .config/wezterm
+* License
+
+MIT
