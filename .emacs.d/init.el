@@ -9,8 +9,10 @@
 (menu-bar-mode -1)
 (global-display-line-numbers-mode +1)
 (text-scale-set 0.5)
-
+(setq registe-use-preview 'insist)
 (add-to-list 'auth-sources "~/.authinfo.gpg")
+
+(setq Info-directory-list nil)
 
 (setq ispell-alternate-dictionary
  "/home/sohamg/.nix-profile/lib/aspell/en_GB-ise.multi")
@@ -36,8 +38,8 @@
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
 (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))
 ;; (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-ts-mode))
-(add-to-list 'auto-mode-alist '("\\.rs\\'" . rustic-mode))
 
+(setq treesit-language-source-alist '((hare  "https://git.d2evs.net/~ecs/tree-sitter-hare")))
 (add-hook 'eshell-mode-hook #'compilation-shell-minor-mode)
 
 (add-to-list 'major-mode-remap-alist '(yaml-ts-mode . yaml-mode))
@@ -45,14 +47,23 @@
 (setq inhibit-startup-screen t)
 (setq use-package-always-ensure t)
 (setq-default display-line-numbers-type 'relative)
+(column-number-mode +1)
+(display-time-mode +1)
+(display-battery-mode +1)
+(size-indication-mode +1)
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (setq visible-bell t)
 (setq completions-format 'one-column)
 ;;(setq completion-styles '(flex substring initials partial-completion))
 
 
-(setq backup-directory-alist `((".*" . ,(expand-file-name
+(setq backup-directory-alist `(("." . ,(expand-file-name
 				      "trash" user-emacs-directory))))
+(auto-save-mode +1)
+(auto-save-visited-mode +1)
+
+(setq auto-save-timeout 5
+      auto-save-interval 0)
 
 (setq-default fill-column 80)
 
@@ -424,10 +435,11 @@
 )))
 
 (use-package parinfer-rust-mode)
-  ;; :config
-  ;; (add-to-list 'eglot-server-programs
-  ;;              '((rust-ts-mode rust-mode) .
-  ;; 		 ("rustup" "run" "stable" "rust-analyzer" :initializationOptions (:check (:command "clippy"))))))
+
+(use-package hare-ts-mode
+  :ensure t
+  :vc (:url "https://git.sr.ht/~amk/hare-ts-mode" :branch "master" :rev :newest)
+  :hook (hare-ts-mode . (lambda () (setq-local mode-name "🐇"))))
 
 (use-package auth-source-xoauth2-plugin
   :vc (:url "https://gitlab.com/manphiz/auth-source-xoauth2-plugin.git"
@@ -461,16 +473,16 @@
   :config
   (nyan-mode +1))
 
-(use-package rustic
-  :ensure t
-  :init
-  (setq rust-mode-treesitter-derive t)
-  :config
-  (setq rustic-format-on-save nil)
-  :custom
-  ;; (rustic-analyzer-command
-  ;; 		 '("rustup" "run" "stable" "rust-analyzer" ))
-  (rustic-cargo-use-last-stored-arguments t))
+;; (use-package rustic
+;;   :ensure t
+;;   :init
+;;   (setq rust-mode-treesitter-derive t)
+;;   :config
+;;   (setq rustic-format-on-save nil)
+;;   :custom
+;;   ;; (rustic-analyzer-command
+;;   ;; 		 '("rustup" "run" "stable" "rust-analyzer" ))
+;;   (rustic-cargo-use-last-stored-arguments t))
 
 (use-package vc-fossil
   ;; Keep from loading unnecessarily at startup.
@@ -486,6 +498,32 @@
       user-full-name "Soham S Gumaste")
 
 
+(use-package go-mode
+  :hook eglot-ensure
+
+  :init
+  (require 'project)
+  (defun project-find-go-module (dir)
+    (when-let ((root (locate-dominating-file dir "go.mod")))
+      (cons 'go-module root)))
+  (cl-defmethod project-root ((project (head go-module)))
+    (cdr project))
+  (add-hook 'project-find-functions #'project-find-go-module)
+
+  :config
+  (add-hook 'before-save-hook
+	    (lambda ()
+              (call-interactively 'eglot-code-action-organize-imports))
+	    nil t)
+  (defun eglot-format-buffer-before-save ()
+    (add-hook 'before-save-hook #'eglot-format-buffer -10 t))
+  (add-hook 'go-mode-hook #'eglot-format-buffer-before-save))
+
+
+(put 'narrow-to-region 'disabled nil)
+
+;; Has Lat/Long of my location for sunrise/moonphase etc.
+(load-file (concat user-emacs-directory "location.el"))
 
 ;; Local Variables:
 ;; no-byte-compile: t
