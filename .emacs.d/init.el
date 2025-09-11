@@ -5,6 +5,7 @@
 ;; My personal init file
 
 ;;; Code:
+
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (global-display-line-numbers-mode +1)
@@ -17,12 +18,15 @@
 (setq ispell-alternate-dictionary
  "/home/sohamg/.nix-profile/lib/aspell/en_GB-ise.multi")
 
+(setq native-comp-warning-on-missing-source nil)
+
 ;; Garbage Collection
 (setq gc-cons-threshold 100000000)
 (setq read-process-output-max (* 1024 1024)) ;; 1mb
 
 
 (bind-key (kbd "C-c y") #'yank-from-kill-ring)
+(bind-key (kbd "C-c .") #'org-timestamp)
 
 (bind-key (kbd "C-k") #'kill-buffer nil)
 
@@ -33,6 +37,11 @@
 (package-initialize)
 ;;(package-refresh-contents)
 (require 'use-package-ensure)
+
+;; Ask KDE to open web links
+;; KDE will use default configured browser.
+(setq browse-url-browser-function 'browse-url-kde)
+      ;; browse-url-generic-program "app.zen_browser.zen")
 
 ;; Add extensions
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
@@ -83,6 +92,7 @@
   (evil-mode +1))
 
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+(global-set-key (kbd "C-c c") #'compile)
 
 ;; Evil in more places
 (use-package evil-collection
@@ -230,6 +240,11 @@
 ;;; envrc
 (use-package envrc
   :config
+  ;; Run envrc in buffers created by get-buffer-create, save-excursion,
+  ;; set-buffer etc.
+  ;; This is needed when something like `start-process' is called in
+  ;; the newly created buffer, and a project specific tool is to be invoked.
+  (add-hook 'after-init-hook #'envrc--update)
   (envrc-global-mode))
 
 ;;; Vertico
@@ -244,12 +259,18 @@
   :init
   (savehist-mode))
 
+(use-package verb)
+
 (use-package org
   :bind
   (("C-c a" . org-agenda)
   ("C-c t" . org-capture))
   :hook auto-fill-mode
   :config
+  (setq org-agenda-start-on-weekday 0
+	org-return-follows-link t
+	org-link-context-for-files nil)
+  (define-key org-mode-map (kbd "C-c C-r") verb-command-map)
   (setq org-latex-pdf-process
         (list
 	 "latexmk -auxdir=%o/.aux -f -pdflua %f -output-directory=%o"))
@@ -257,13 +278,15 @@
         org-default-notes-file (concat org-directory "/main.org")
         org-capture-templates
         '(
-	  ("n" "Note" entry
-	   (file+headline org-default-notes-file "Master Notes")
-           "* %^{TITLE|untitled} %^g %i\n %T \n %?\n")
           ("t" "Todo" entry
-	   (file org-default-notes-file)
-           "* TODO %^{TITLE|untitled} %^g %i\n %T \n %?\n"
-	   :tree-type month))
+	   (file+olp+datetree org-default-notes-file "Todos")
+           "* TODO %^{TITLE|untitled} %^g \n %T \n %i \n %?\n"
+	   :tree-type month)
+	  ;; ("f" "FIle-tagged note" entry
+	  ;;  (file+olp+datetree org-default-notes-file "File-Tagged")
+	  ;;  "* For File: %f | %^{NOTE|%i} \n %T Path: %"
+	  ;; :tree-type month
+	  )
         org-todo-keywords
         '((sequence "TODO(t)" "NEXT(n)" "IN-PROG(i)" "|" "DONE(d)" "WONT-DO(w@)" "LIMBO(l)"))
         org-id-link-to-org-use-id t
@@ -296,7 +319,17 @@
   (pdf-tools-install)
   (add-hook 'pdf-view-mode-hook #'(lambda nil (setq-local display-line-numbers nil))))
 
+
 (use-package org-roam
+  :demand t
+  :init
+  (defun my/roam-filter-currentfile (n)
+    (string-match (file-name-base (buffer-file-name)) (org-roam-node-title n)))
+  (defun my/roam-filetag-narrow ()
+    "Fuck me."
+    (interactive current-prefix-arg)
+    (org-roam-capture nil "f"
+		      :filter-fn #'my/roam-filter-currentfile))
   :custom
   (org-roam-completion-everywhere t)
   (org-roam-graph-executable "~/.nix-profile/bin/dot")
@@ -305,14 +338,30 @@
   (org-roam-capture-templates '(("d" "default" plain "%?"
                                  :target (file+head "roam_${slug}.org.gpg"
                                                     "#+title: ${title}\n %<%T %d>\n")
-                                 :unnarrowed t)))
+                                 :unnarrowed t)
+				("f" "File-tagged note" entry
+				 "* %? \n:FILE-INFO:\n:FullPath: %(format \"[[file:%F:%d:%d]]\" (line-number-at-pos nil t) (current-column))\n:END:\n %T\n>>%i\n"
+				 :target (file+head "%(format \"roam_filetag_%s.org.gpg\" (file-name-base \"%f\"))"
+						    "#+title: 🗄️ Notes for file %f\n#+startup: content\n")
+				 :unnarrowed t)))
   :bind (("C-c o l" . org-roam-buffer-toggle)
          ("C-c o f" . org-roam-node-find)
-         ("C-c o i" . org-roam-node-insert))
+         ("C-c o i" . org-roam-node-insert)
+	 ;; ("C-c o o" . my/roam-filter-narrow)
+	 )
   :bind-keymap ("C-c o d" . org-roam-dailies-map)
 
   :config
+  (require 'org-roam-protocol)
+  (global-set-key (kbd "C-c o o") #'my/roam-filetag-narrow)
   (require 'org-roam-dailies)
+  (add-to-list 'display-buffer-alist
+             '("\\*org-roam\\*"
+               (display-buffer-in-direction)
+               (direction . right)
+	       (dedicated . t)
+               (window-width . 0.33)
+               (window-height . fit-window-to-buffer)))
   (setq org-roam-dailies-directory "daily/")
   (setq org-id-link-to-org-use-id 'create-if-interactive)
   (setq org-roam-dailies-capture-templates
@@ -373,9 +422,10 @@
   (gptel-make-anthropic "Claude Haiku"
     :stream t
     :key (funcall (plist-get (nth 0 (auth-source-search :host "anthropic.com")) :secret)))
-  :bind (("C-c g g" . gptel)
-         ("C-c g s" . gptel-send)
-         ("C-c g a" . gptel-add)))
+  ;; :bind (("C-c g g" . gptel)
+  ;;        ("C-c g s" . gptel-send)
+  ;;        ("C-c g a" . gptel-add)
+	 )
 
 ;; (use-package nix-ts-mode)
 
@@ -500,7 +550,6 @@
 
 (use-package go-mode
   :hook eglot-ensure
-
   :init
   (require 'project)
   (defun project-find-go-module (dir)
@@ -525,6 +574,34 @@
 ;; Has Lat/Long of my location for sunrise/moonphase etc.
 (load-file (concat user-emacs-directory "location.el"))
 
+(require 'ansi-color)
+(defun display-ansi-colors ()
+  "Render ANSI terminal escape codes in the entire buffer."
+  (interactive)
+  (ansi-color-apply-on-region (point-min) (point-max)))
+
+(use-package xcscope
+  :config
+  (cscope-setup))
+
+(use-package ggtags
+  ;; :bind-keymap (("C-c g" . ggtags-mode-map))
+  :bind (("C-c g g" . ggtags-find-definition))
+  :config
+  (add-hook 'ggtags-mode-hook #'(lambda ()
+				  (message "Set ggtags dir to")
+				  (message (getenv "GTAGS_DIR"))
+				  (setq ggtags-executable-directory
+					(getenv "GTAGS_DIR")))))
+(use-package evil-org
+  :ensure t
+  :after org
+  :hook (org-mode . (lambda () evil-org-mode))
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
 ;; Local Variables:
 ;; no-byte-compile: t
 ;; End:
+
+(commandp #'my/roam-filetag-narrow)
