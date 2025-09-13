@@ -45,8 +45,15 @@
 
 ;; Add extensions
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+(add-to-list 'auto-mode-alist '("\\.eml\\'" . mail-mode))
 (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))
 ;; (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-ts-mode))
+
+;; Fucking thunderbird
+(add-hook 'mail-mode-hook
+	  #'(lambda ()
+	      (setq-local fill-column 70)
+	      (auto-fill-mode +1)))
 
 (setq treesit-language-source-alist '((hare  "https://git.d2evs.net/~ecs/tree-sitter-hare")))
 (add-hook 'eshell-mode-hook #'compilation-shell-minor-mode)
@@ -574,10 +581,10 @@
 ;; Has Lat/Long of my location for sunrise/moonphase etc.
 (load-file (concat user-emacs-directory "location.el"))
 
-(require 'ansi-color)
 (defun display-ansi-colors ()
   "Render ANSI terminal escape codes in the entire buffer."
   (interactive)
+  (require 'ansi-color)
   (ansi-color-apply-on-region (point-min) (point-max)))
 
 (use-package xcscope
