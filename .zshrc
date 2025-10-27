@@ -142,3 +142,12 @@ frfr() {
 }
 export BROWSER=app.zen_browser.zen
 alias sudo="run0"
+
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /nix/store/dk1psxq41wxki08ry62i61pvjpgl8bb9-tanka-0.32.0/bin/tk tk
+
+PATH="/home/sohamg/perl5/bin${PATH:+:${PATH}}"; export PATH;
+PERL5LIB="/home/sohamg/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+PERL_LOCAL_LIB_ROOT="/home/sohamg/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+PERL_MB_OPT="--install_base \"/home/sohamg/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=/home/sohamg/perl5"; export PERL_MM_OPT;

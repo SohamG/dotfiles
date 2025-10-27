@@ -10,7 +10,7 @@
 (menu-bar-mode -1)
 (global-display-line-numbers-mode +1)
 (text-scale-set 0.5)
-(setq registe-use-preview 'insist)
+(setq register-use-preview 'insist)
 (add-to-list 'auth-sources "~/.authinfo.gpg")
 
 (setq Info-directory-list nil)
@@ -19,6 +19,8 @@
  "/home/sohamg/.nix-profile/lib/aspell/en_GB-ise.multi")
 
 (setq native-comp-warning-on-missing-source nil)
+
+(setq tab-width 2)
 
 ;; Garbage Collection
 (setq gc-cons-threshold 100000000)
@@ -45,15 +47,15 @@
 
 ;; Add extensions
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
-(add-to-list 'auto-mode-alist '("\\.eml\\'" . mail-mode))
+(add-to-list 'auto-mode-alist '("\\.eml\\'" . message-mode))
 (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))
 ;; (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-ts-mode))
 
 ;; Fucking thunderbird
-(add-hook 'mail-mode-hook
+(add-hook 'message-mode-hook
 	  #'(lambda ()
 	      (setq-local fill-column 70)
-	      (auto-fill-mode +1)))
+	      (turn-on-auto-fill)))
 
 (setq treesit-language-source-alist '((hare  "https://git.d2evs.net/~ecs/tree-sitter-hare")))
 (add-hook 'eshell-mode-hook #'compilation-shell-minor-mode)
@@ -266,21 +268,23 @@
   :init
   (savehist-mode))
 
-(use-package verb)
+(use-package verb
+  :after org)
 
 (use-package org
+  :demand t
   :bind
   (("C-c a" . org-agenda)
   ("C-c t" . org-capture))
-  :hook auto-fill-mode
   :config
   (setq org-agenda-start-on-weekday 0
 	org-return-follows-link t
-	org-link-context-for-files nil)
+	org-link-context-for-files nil
+	org-list-indent-offset 2)
   (define-key org-mode-map (kbd "C-c C-r") verb-command-map)
   (setq org-latex-pdf-process
         (list
-	 "latexmk -auxdir=%o/.aux -f -pdflua %f -output-directory=%o"))
+	 "latexmk -auxdir=%o/.aux -f -pdf %f -output-directory=%o --shell-escape"))
   (setq org-directory (expand-file-name "~/Nextcloud/Notes")
         org-default-notes-file (concat org-directory "/main.org")
         org-capture-templates
@@ -308,23 +312,36 @@
 
 (use-package evil-org
   :after org
+  :demand t
   :hook (org-mode . (lambda () evil-org-mode))
   :config
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
 
-(use-package org-contrib)
+(use-package org-contrib
+  :demand t)
+
+(use-package org-ref
+  :demand t)
 
 
 (use-package auctex)
 (use-package pdf-tools
+  (define-key image-mode-map (kbd "<wheel-left>") 'image-scroll-left)
+  (define-key image-mode-map (kbd "<wheel-right>") 'image-scroll-right)
   :config
   ;; Note to future self
   ;; This is probably better installed thru nix
   ;; as it attempts to compile a C program.
   ;; MAYBE add shell.nix to emacs directory.
   (pdf-tools-install)
-  (add-hook 'pdf-view-mode-hook #'(lambda nil (setq-local display-line-numbers nil))))
+	(defun bugfix-display-line-numbers--turn-on (fun &rest args)
+		"Avoid `display-line-numbers-mode' in `image-mode' and related.
+Around advice for FUN with ARGS."
+		(unless (derived-mode-p 'image-mode 'docview-mode 'pdf-view-mode)
+			(apply fun args)))
+
+	(advice-add 'display-line-numbers--turn-on :around #'bugfix-display-line-numbers--turn-on))
 
 
 (use-package org-roam
@@ -376,19 +393,18 @@
            "* %?"
            :target (file+head "%<%Y-%m-%d>.org.gpg"
                               "#+title: Journal for %<%Y-%m-%d> %<%a>\n"))))
-  (org-roam-db-autosync-enable))
-
-
-
+  ;; Without the hook, autosync enable will prompt for
+  ;; GPG password the instant emacs daemon is started ie on boot etc.
+  (add-hook 'server-after-make-frame-hook
+	    #'(lambda ()
+		(org-roam-db-autosync-enable))))
 
 (use-package calc
   :config
   (add-hook 'calc-mode-hook #'turn-off-evil-mode)
   :defer t)
 
-
-
-(load-file "/home/sohamg/work/elpa/packages/oauth2/oauth2.el")
+;; (load-file "/home/sohamg/work/elpa/packages/oauth2/oauth2.el")
 
 (setq gnus-select-method
       '(nnimap "imap.gmail.com"
@@ -578,8 +594,6 @@
 
 (put 'narrow-to-region 'disabled nil)
 
-;; Has Lat/Long of my location for sunrise/moonphase etc.
-(load-file (concat user-emacs-directory "location.el"))
 
 (defun display-ansi-colors ()
   "Render ANSI terminal escape codes in the entire buffer."
@@ -593,6 +607,7 @@
 
 (use-package ggtags
   ;; :bind-keymap (("C-c g" . ggtags-mode-map))
+  :demand t
   :bind (("C-c g g" . ggtags-find-definition))
   :config
   (add-hook 'ggtags-mode-hook #'(lambda ()
@@ -600,15 +615,16 @@
 				  (message (getenv "GTAGS_DIR"))
 				  (setq ggtags-executable-directory
 					(getenv "GTAGS_DIR")))))
-(use-package evil-org
+
+;; Has Lat/Long of my location for sunrise/moonphase etc.
+(load-file (concat user-emacs-directory "location.el"))
+
+(use-package orgtbl-join
   :ensure t
-  :after org
-  :hook (org-mode . (lambda () evil-org-mode))
-  :config
-  (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys))
+  :after org)
+
 ;; Local Variables:
 ;; no-byte-compile: t
 ;; End:
+(put 'narrow-to-page 'disabled nil)
 
-(commandp #'my/roam-filetag-narrow)
