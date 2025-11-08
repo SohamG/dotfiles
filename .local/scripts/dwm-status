@@ -8,7 +8,7 @@ wireless(){
   case $BUTTON in
     1) ip=$(dig +short myip.opendns.com @resolver1.opendns.com)
       notify-send "$ip"
-      echo "$ip" | xclip -selection clipboard
+      echo "$ip" | wl-copy
       ;;
   esac
 	grep "^\s*w" /proc/net/wireless | awk '{ print "🌏", int($3 * 100 / 70) "%" }'
@@ -46,8 +46,8 @@ volume(){
   pactl get-sink-volume $(pactl get-default-sink) | awk '{print $5}'
 }
 update_weather(){
-    curl -s https://wttr.in/chicago?1AFnQT > /tmp/weather 
-    curl -s https://v2.wttr.in/chicago > /tmp/weather2
+    curl -s https://wttr.in/columbus?1AFnQT > /tmp/weather 
+    curl -s https://v2.wttr.in/columbus > /tmp/weather2
     echo "Updated weather cache! $(date) " >> /tmp/barlog
 }
 weather(){
@@ -94,22 +94,24 @@ speed(){
 }
 
 dollar(){
-  echo -n "💲₹"
-   curl -s https://www.federalreserve.gov/feeds/data/H10_H10_RXI_N.B.IN.xml | grep -i _per_usd | tail -n 1 | gawk 'match($0, />([0-9.]+)</, a) {print a[1]}'
+  echo -n "💲₹ "
+   curl -s https://www.federalreserve.gov/feeds/data/H10_H10_RXI_N.B.IN.xml | perl -ne 'if (/<cb:value decimals="4" unit_mult="1" units="Currency">(.*)<\/cb:value>/) { printf "%.2f", $1; exit; }'
+   #grep -i _per_usd | tail -n 1 | gawk 'match($0, />([0-9.]+)</, a) {print a[1]}'
 }
 wind(){
-  echo -n " 💨"
-  if [ -f /tmp/wind ]; then
-    age=$(($(date +%s) - $(date -r /tmp/wind +%s)))
-  else
-    age=3601
-  fi
+  echo -n " 💨 "
+  curl -s 'https://wttr.in/columbus?format=%w'
+ #  if [ -f /tmp/wind ]; then
+ #    age=$(($(date +%s) - $(date -r /tmp/wind +%s)))
+ #  else
+ #    age=3601
+ #  fi
 
- if [ $age -gt 3600 ]; then
-    # Put your openweathermap API key in an env var called OWM_API
-    curl -s "https://api.openweathermap.org/data/2.5/weather?q=chicago&appid=$OWM_API" > /tmp/wind
- fi
- cat /tmp/wind | jq '.wind.speed'
+ # if [ $age -gt 3600 ]; then
+ #    # Put your openweathermap API key in an env var called OWM_API
+ #    curl -s "https://api.openweathermap.org/data/2.5/weather?q=chicago&appid=$OWM_API" > /tmp/wind
+ # fi
+ # cat /tmp/wind | jq '.wind.speed'
 }
 mem(){
   case $BUTTON in

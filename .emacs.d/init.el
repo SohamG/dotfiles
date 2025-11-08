@@ -6,6 +6,9 @@
 
 ;;; Code:
 
+
+(defalias 'yes-or-no-p 'y-or-n-p)
+
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (global-display-line-numbers-mode +1)
@@ -622,6 +625,8 @@ Around advice for FUN with ARGS."
 (use-package orgtbl-join
   :ensure t
   :after org)
+
+
 
 ;; Local Variables:
 ;; no-byte-compile: t
